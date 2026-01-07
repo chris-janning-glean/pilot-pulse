@@ -904,7 +904,7 @@ function SentimentDashboardContent() {
           {/* Feedback Trend Chart and Issue Type Breakdown */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
+            gridTemplateColumns: 'repeat(5, 1fr)', 
             gap: 12, 
             marginBottom: 32 
           }}>
@@ -965,8 +965,8 @@ function SentimentDashboardContent() {
               </CardContent>
             </Card>
 
-            {/* Issue Type Pie Chart - 1 column */}
-            <Card>
+            {/* Issue Type Pie Chart - 2 columns */}
+            <Card style={{ gridColumn: 'span 2' }}>
               <CardHeader>
                 <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>By Issue Type</CardTitle>
               </CardHeader>
