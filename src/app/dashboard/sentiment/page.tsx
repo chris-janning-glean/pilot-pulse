@@ -535,8 +535,8 @@ function SentimentDashboardContent() {
         stats: combinedStats 
       });
       
-      // Call Glean agent with customer name for negative feedback analysis
-      await callGleanAgent(selectedCustomer);
+      // Set last updated timestamp
+      setLastUpdated(new Date());
       
       console.log('✅ Search complete:');
       console.log(`   - Negative feedback: ${combinedStats.negativeCount}`);
@@ -557,9 +557,12 @@ function SentimentDashboardContent() {
         negativeRate: negativeRate,
         trendData: [],
       });
-
-      // Set last updated timestamp
-      setLastUpdated(new Date());
+      
+      // Call Glean agent in the background (non-blocking)
+      // This won't delay the page load - agent analysis loads separately
+      callGleanAgent(selectedCustomer).catch(err => {
+        console.error('Agent call failed (non-blocking):', err);
+      });
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load data';
