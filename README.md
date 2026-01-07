@@ -329,10 +329,28 @@ npm run type-check # Run TypeScript compiler check
 
 ### Vercel (Recommended)
 
-1. Push your code to GitHub
-2. Import the repository in Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy
+This project is configured for seamless Vercel deployment:
+
+1. **Connect to Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import: `https://github.com/chris-janning-glean/pilot-pulse`
+
+2. **Configure Environment Variables**:
+   In Vercel Project Settings → Environment Variables, add:
+   ```
+   NEXT_PUBLIC_GLEAN_API_ENDPOINT=https://scio-prod-be.glean.com
+   NEXT_PUBLIC_GLEAN_OAUTH_TOKEN=your_oauth_token_here
+   ```
+
+3. **Deploy**:
+   - Click "Deploy"
+   - Vercel will automatically detect Next.js and configure build settings
+   - Your app will be live at: `https://pilot-pulse.vercel.app`
+
+4. **Custom Domain (Optional)**:
+   - Go to Project Settings → Domains
+   - Add your custom domain
 
 ### Other Platforms
 
