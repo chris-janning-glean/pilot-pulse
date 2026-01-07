@@ -3,14 +3,16 @@ import React from 'react';
 interface CardProps {
   children: React.ReactNode;
   style?: React.CSSProperties;
+  className?: string;
   onClick?: () => void;
 }
 
-export function Card({ children, style, onClick }: CardProps) {
+export function Card({ children, style, className, onClick }: CardProps) {
   const [isHovered, setIsHovered] = React.useState(false);
 
   return (
     <div
+      className={className}
       style={{
         background: 'white',
         border: '1px solid #e5e7eb',
@@ -29,68 +31,83 @@ export function Card({ children, style, onClick }: CardProps) {
   );
 }
 
-export function CardHeader({ children, style }: CardProps) {
+export function CardHeader({ children, style, className }: CardProps) {
   return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      gap: 4, 
-      padding: '18px 20px',
-      borderBottom: '1px solid #f3f4f6',
-      ...style 
-    }}>
+    <div 
+      className={className}
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: 4, 
+        padding: '18px 20px',
+        borderBottom: '1px solid #f3f4f6',
+        ...style 
+      }}
+    >
       {children}
     </div>
   );
 }
 
-export function CardTitle({ children, style }: CardProps) {
+export function CardTitle({ children, style, className }: CardProps) {
   return (
-    <h3 style={{
-      margin: 0,
-      fontSize: 18,
-      fontWeight: 600,
-      color: '#111827',
-      lineHeight: 1.2,
-      ...style
-    }}>
+    <h3 
+      className={className}
+      style={{
+        margin: 0,
+        fontSize: 18,
+        fontWeight: 600,
+        color: '#111827',
+        lineHeight: 1.2,
+        ...style
+      }}
+    >
       {children}
     </h3>
   );
 }
 
-export function CardDescription({ children, style }: CardProps) {
+export function CardDescription({ children, style, className }: CardProps) {
   return (
-    <p style={{ 
-      margin: 0, 
-      fontSize: 13, 
-      color: '#6b7280',
-      ...style 
-    }}>
+    <p 
+      className={className}
+      style={{ 
+        margin: 0, 
+        fontSize: 13, 
+        color: '#6b7280',
+        ...style 
+      }}
+    >
       {children}
     </p>
   );
 }
 
-export function CardContent({ children, style }: CardProps) {
+export function CardContent({ children, style, className }: CardProps) {
   return (
-    <div style={{ 
-      padding: '0 20px 20px 20px',
-      ...style 
-    }}>
+    <div 
+      className={className}
+      style={{ 
+        padding: '0 20px 20px 20px',
+        ...style 
+      }}
+    >
       {children}
     </div>
   );
 }
 
-export function CardFooter({ children, style }: CardProps) {
+export function CardFooter({ children, style, className }: CardProps) {
   return (
-    <div style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      padding: '0 20px 20px 20px',
-      ...style 
-    }}>
+    <div 
+      className={className}
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        padding: '0 20px 20px 20px',
+        ...style 
+      }}
+    >
       {children}
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SentimentOverview } from '@/components/sentiment/SentimentOverview';
 import { SentimentChart } from '@/components/sentiment/SentimentChart';
@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { buttonStyles } from '@/lib/commonStyles';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 
-export default function SentimentDashboard() {
+function SentimentDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -1612,5 +1612,18 @@ export default function SentimentDashboard() {
         )}
       </Card>
     </div>
+  );
+}
+
+export default function SentimentDashboard() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
+        <RefreshCw size={32} color="#343ced" style={{ animation: 'spin 1s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    }>
+      <SentimentDashboardContent />
+    </Suspense>
   );
 }
