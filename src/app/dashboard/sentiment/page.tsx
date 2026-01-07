@@ -13,7 +13,7 @@ import { DEFAULT_API_CONFIGS } from '@/lib/config';
 import { RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { buttonStyles } from '@/lib/commonStyles';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 
 function SentimentDashboardContent() {
   const router = useRouter();
@@ -172,6 +172,25 @@ function SentimentDashboardContent() {
     console.log('📊 Trend data generated:', trendData.length, 'data points', trendData);
     return trendData;
   };
+
+  // Generate pie chart data by issue type
+  const generateIssueTypeData = () => {
+    if (!filteredFeedback || filteredFeedback.length === 0) return [];
+    
+    const issueGroups: { [key: string]: number } = {};
+    
+    filteredFeedback.forEach((item: any) => {
+      const issueType = item.issueType || 'Unknown';
+      issueGroups[issueType] = (issueGroups[issueType] || 0) + 1;
+    });
+    
+    return Object.entries(issueGroups)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  };
+
+  // Colors for pie chart
+  const PIE_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#f97316', '#06b6d4'];
 
   // Filter feedback by time range
   const filterFeedbackByTimeRange = (feedback: any[], days: number) => {
@@ -882,38 +901,45 @@ function SentimentDashboardContent() {
             </Card>
           </div>
 
-          {/* Feedback Trend Chart */}
-          <Card style={{ marginBottom: 32 }}>
-            <CardHeader>
-              <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>Feedback Trend (last {timeRange} days)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={generateTrendData()}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="label" 
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                    stroke="#d1d5db"
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
-                    stroke="#d1d5db"
-                    allowDecimals={false}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: '#ffffff',
-                      border: '1px solid #d1d5db',
-                      borderRadius: 8,
-                      fontSize: 13,
-                    }}
-                    labelStyle={{ fontWeight: 600, marginBottom: 4 }}
-                  />
-                  <Legend 
-                    wrapperStyle={{ paddingTop: 20 }}
-                    iconType="rect"
-                  />
+          {/* Feedback Trend Chart and Issue Type Breakdown */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(4, 1fr)', 
+            gap: 12, 
+            marginBottom: 32 
+          }}>
+            {/* Feedback Trend Chart - spans 3 columns */}
+            <Card style={{ gridColumn: 'span 3' }}>
+              <CardHeader>
+                <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>Feedback Trend (last {timeRange} days)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={generateTrendData()}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis 
+                      dataKey="label" 
+                      tick={{ fontSize: 12, fill: '#6b7280' }}
+                      stroke="#d1d5db"
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#6b7280' }}
+                      stroke="#d1d5db"
+                      allowDecimals={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d1d5db',
+                        borderRadius: 8,
+                        fontSize: 13,
+                      }}
+                      labelStyle={{ fontWeight: 600, marginBottom: 4 }}
+                    />
+                    <Legend 
+                      wrapperStyle={{ paddingTop: 20 }}
+                      iconType="rect"
+                    />
                     <Bar 
                       dataKey="positive" 
                       fill="#16a34a" 
@@ -926,8 +952,8 @@ function SentimentDashboardContent() {
                       name="👎 Negative"
                       radius={[4, 4, 0, 0]}
                     />
-                </BarChart>
-              </ResponsiveContainer>
+                  </BarChart>
+                </ResponsiveContainer>
                 <div style={{ 
                   marginTop: 16, 
                   fontSize: 12, 
@@ -936,8 +962,52 @@ function SentimentDashboardContent() {
                 }}>
                   Positive in green, negative in red
                 </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Issue Type Pie Chart - 1 column */}
+            <Card>
+              <CardHeader>
+                <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>By Issue Type</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={generateIssueTypeData()}
+                      cx="50%"
+                      cy="45%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {generateIssueTypeData().map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #d1d5db',
+                        borderRadius: 8,
+                        fontSize: 13,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div style={{ 
+                  marginTop: 16, 
+                  fontSize: 12, 
+                  color: '#9ca3af',
+                  textAlign: 'center'
+                }}>
+                  Distribution by issue category
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* All Feedback Tickets Table */}
           {filteredFeedback.length > 0 && (
