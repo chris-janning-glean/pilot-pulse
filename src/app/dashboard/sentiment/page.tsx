@@ -1503,9 +1503,28 @@ function SentimentDashboardContent() {
                                   minHeight: 120,
                                   padding: '16px 8px'
                                 }}>
-                                  {tagCloud
-                                    .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))
-                                    .map((tag: any, idx: number) => {
+                                  {(() => {
+                                    // Sort by frequency
+                                    const sorted = [...tagCloud].sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0));
+                                    
+                                    // Rearrange so high-frequency items appear in the middle
+                                    const reordered: any[] = [];
+                                    let left = 0;
+                                    let right = sorted.length - 1;
+                                    let toLeft = true;
+                                    
+                                    while (left <= right) {
+                                      if (toLeft) {
+                                        reordered.push(sorted[right]);
+                                        right--;
+                                      } else {
+                                        reordered.push(sorted[left]);
+                                        left++;
+                                      }
+                                      toLeft = !toLeft;
+                                    }
+                                    
+                                    return reordered.map((tag: any, idx: number) => {
                                       if (!tag.phrase) return null;
                                       
                                       const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
@@ -1524,8 +1543,7 @@ function SentimentDashboardContent() {
                                             cursor: 'help',
                                             padding: '4px 10px',
                                             display: 'inline-block',
-                                            transition: 'all 0.2s',
-                                            order: frequency >= 7 ? -1 : frequency >= 4 ? 0 : 1
+                                            transition: 'all 0.2s'
                                           }}
                                           onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'scale(1.1)';
@@ -1539,7 +1557,8 @@ function SentimentDashboardContent() {
                                           {tag.phrase}
                                         </span>
                                       );
-                                    })}
+                                    });
+                                  })()}
                                 </div>
                               </div>
                             )}
@@ -1693,9 +1712,28 @@ function SentimentDashboardContent() {
                                   minHeight: 120,
                                   padding: '16px 8px'
                                 }}>
-                                  {tagCloud
-                                    .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))
-                                    .map((tag: any, idx: number) => {
+                                  {(() => {
+                                    // Sort by frequency
+                                    const sorted = [...tagCloud].sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0));
+                                    
+                                    // Rearrange so high-frequency items appear in the middle
+                                    const reordered: any[] = [];
+                                    let left = 0;
+                                    let right = sorted.length - 1;
+                                    let toLeft = true;
+                                    
+                                    while (left <= right) {
+                                      if (toLeft) {
+                                        reordered.push(sorted[right]);
+                                        right--;
+                                      } else {
+                                        reordered.push(sorted[left]);
+                                        left++;
+                                      }
+                                      toLeft = !toLeft;
+                                    }
+                                    
+                                    return reordered.map((tag: any, idx: number) => {
                                       if (!tag.phrase) return null;
                                       
                                       const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
@@ -1714,8 +1752,7 @@ function SentimentDashboardContent() {
                                             cursor: 'help',
                                             padding: '4px 10px',
                                             display: 'inline-block',
-                                            transition: 'all 0.2s',
-                                            order: frequency >= 7 ? -1 : frequency >= 4 ? 0 : 1
+                                            transition: 'all 0.2s'
                                           }}
                                           onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'scale(1.1)';
@@ -1729,7 +1766,8 @@ function SentimentDashboardContent() {
                                           {tag.phrase}
                                         </span>
                                       );
-                                    })}
+                                    });
+                                  })()}
                                 </div>
                               </div>
                             )}
