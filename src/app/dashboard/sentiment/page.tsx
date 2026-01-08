@@ -1365,13 +1365,15 @@ function SentimentDashboardContent() {
                   </div>
                 ) : (
                   <div>
-                    {/* Extract and display agent text from messages array */}
+                    {/* Extract and display agent content from messages array */}
                     {(() => {
                       // Find the GLEAN_AI message
                       const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
-                      const textContent = gleanMessage?.content?.[0]?.text;
+                      const content = gleanMessage?.content?.[0];
                       
-                      if (textContent) {
+                      // Handle text content (markdown/plain text)
+                      if (content?.text) {
+                        const textContent = content.text;
                         return (
                           <div style={{ 
                             background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
@@ -1396,12 +1398,12 @@ function SentimentDashboardContent() {
                                   if (line.trim().startsWith('###')) {
                                     return (
                                       <div key={idx} style={{ 
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontWeight: 600,
                                         color: '#0f172a',
-                                        marginTop: idx > 0 ? 20 : 0,
-                                        marginBottom: 8,
-                                        paddingTop: idx > 0 ? 20 : 0,
+                                        marginTop: idx > 0 ? 24 : 0,
+                                        marginBottom: 12,
+                                        paddingTop: idx > 0 ? 24 : 0,
                                         borderTop: idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
                                       }}>
                                         {line.replace(/^###\s*/, '')}
@@ -1413,11 +1415,11 @@ function SentimentDashboardContent() {
                                   if (line.trim().startsWith('####')) {
                                     return (
                                       <div key={idx} style={{ 
-                                        fontSize: 13,
+                                        fontSize: 14,
                                         fontWeight: 600,
                                         color: '#0f172a',
-                                        marginTop: 16,
-                                        marginBottom: 8
+                                        marginTop: 20,
+                                        marginBottom: 10
                                       }}>
                                         {line.replace(/^####\s*/, '')}
                                       </div>
@@ -1428,31 +1430,162 @@ function SentimentDashboardContent() {
                                   if (line.trim().startsWith('-')) {
                                     return (
                                       <div key={idx} style={{ 
-                                        paddingLeft: 20,
-                                        marginBottom: 8,
-                                        color: '#334155'
+                                        paddingLeft: 24,
+                                        marginBottom: 10,
+                                        color: '#334155',
+                                        fontSize: 14
                                       }}>
                                         {line}
                                       </div>
                                     );
                                   }
+                                  
+                                  // Style bold text (**text**)
+                                  const styledLine = line.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #0f172a; font-weight: 600">$1</strong>');
                                   
                                   // Regular text
                                   if (line.trim()) {
                                     return (
                                       <div key={idx} style={{ 
-                                        marginBottom: 8,
-                                        color: '#1e293b'
-                                      }}>
-                                        {line}
+                                        marginBottom: 10,
+                                        color: '#334155',
+                                        fontSize: 14
+                                      }} dangerouslySetInnerHTML={{ __html: styledLine }}>
                                       </div>
                                     );
                                   }
                                   
                                   // Empty line
-                                  return <div key={idx} style={{ height: 8 }} />;
+                                  return <div key={idx} style={{ height: 12 }} />;
                                 })}
                               </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Handle JSON content
+                      if (content?.json) {
+                        const jsonData = content.json;
+                        
+                        return (
+                          <div style={{ 
+                            background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
+                            border: '1px solid #e2e8f0',
+                            borderLeft: '4px solid #818cf8',
+                            borderRadius: 16,
+                            padding: '24px 28px',
+                            marginTop: 24,
+                            marginBottom: 16,
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                          }}>
+                            <div style={{ maxWidth: '80ch' }}>
+                              {/* Render JSON as structured content */}
+                              {jsonData.summary && (
+                                <div style={{ marginBottom: 24 }}>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12 
+                                  }}>
+                                    Summary
+                                  </h3>
+                                  <p style={{ 
+                                    fontSize: 14, 
+                                    color: '#334155', 
+                                    lineHeight: 1.7,
+                                    marginBottom: 0
+                                  }}>
+                                    {jsonData.summary}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {jsonData.issues && Array.isArray(jsonData.issues) && (
+                                <div style={{ marginBottom: 24 }}>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12,
+                                    paddingTop: 24,
+                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
+                                  }}>
+                                    Key Issues
+                                  </h3>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                    {jsonData.issues.map((issue: any, idx: number) => (
+                                      <div key={idx} style={{ 
+                                        padding: 16,
+                                        background: 'white',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: 8
+                                      }}>
+                                        {issue.type && (
+                                          <div style={{ 
+                                            fontSize: 14, 
+                                            fontWeight: 600, 
+                                            color: '#0f172a',
+                                            marginBottom: 8
+                                          }}>
+                                            {issue.type}
+                                          </div>
+                                        )}
+                                        {issue.description && (
+                                          <div style={{ 
+                                            fontSize: 13, 
+                                            color: '#64748b',
+                                            lineHeight: 1.6,
+                                            marginBottom: 8
+                                          }}>
+                                            {issue.description}
+                                          </div>
+                                        )}
+                                        {issue.examples && Array.isArray(issue.examples) && issue.examples.length > 0 && (
+                                          <div style={{ marginTop: 8 }}>
+                                            <div style={{ fontSize: 12, fontWeight: 500, color: '#64748b', marginBottom: 4 }}>
+                                              Examples:
+                                            </div>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569', fontSize: 12, lineHeight: 1.6 }}>
+                                              {issue.examples.map((example: string, i: number) => (
+                                                <li key={i} style={{ marginBottom: 4 }}>{example}</li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {jsonData.recommendations && Array.isArray(jsonData.recommendations) && (
+                                <div>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12,
+                                    paddingTop: 24,
+                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
+                                  }}>
+                                    Recommendations
+                                  </h3>
+                                  <ul style={{ 
+                                    margin: 0, 
+                                    paddingLeft: 24, 
+                                    color: '#334155', 
+                                    fontSize: 14,
+                                    lineHeight: 1.7,
+                                    listStyleType: 'disc'
+                                  }}>
+                                    {jsonData.recommendations.map((rec: string, idx: number) => (
+                                      <li key={idx} style={{ marginBottom: 10 }}>{rec}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
                             </div>
                           </div>
                         );
@@ -1461,13 +1594,15 @@ function SentimentDashboardContent() {
                       // Fallback for other formats
                       return (
                         <div style={{ 
-                          padding: 16, 
+                          padding: 20, 
                           background: '#fef2f2',
                           border: '1px solid #fca5a5',
-                          borderRadius: 8,
-                          color: '#991b1b'
+                          borderLeft: '4px solid #ef4444',
+                          borderRadius: 16,
+                          color: '#991b1b',
+                          fontSize: 13
                         }}>
-                          No agent text found in response. Check the JSON below for details.
+                          No agent content found in response. Check the debug JSON below for details.
                         </div>
                       );
                     })()}
