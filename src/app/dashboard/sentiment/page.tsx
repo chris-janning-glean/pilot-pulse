@@ -1506,9 +1506,9 @@ function SentimentDashboardContent() {
                                     const level = type.includes('1') || type === 'h1' ? 1 : type.includes('2') || type === 'h2' ? 2 : 3;
                                     rendered.push(
                                       <div key={idx} style={{ 
-                                        fontSize: level === 1 ? 18 : level === 2 ? 16 : 14,
+                                        fontSize: level === 1 ? 20 : level === 2 ? 16 : 14,
                                         fontWeight: 600,
-                                        color: '#0f172a',
+                                        color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#0f172a',
                                         marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 24 : 20,
                                         marginBottom: 12,
                                         paddingTop: level === 1 && idx > 0 ? 28 : 0,
