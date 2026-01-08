@@ -1571,11 +1571,25 @@ function SentimentDashboardContent() {
                         }
                         
                         if (!jsonData) {
-                          console.log('🟢 NO JSON DATA - showing fallback');
-                          return <div>No data available</div>;
+                          console.log('🟢 NO JSON DATA - showing full response');
+                          return (
+                            <div>
+                              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 12 }}>
+                                Agent response received but no structured data found.
+                              </div>
+                              <details>
+                                <summary style={{ cursor: 'pointer', fontSize: 12, color: '#9ca3af' }}>View Response</summary>
+                                <pre style={{ fontSize: 11, whiteSpace: 'pre-wrap', marginTop: 8 }}>
+                                  {JSON.stringify(agentResponse, null, 2)}
+                                </pre>
+                              </details>
+                            </div>
+                          );
                         }
                         
                         console.log('🟢 POSITIVE JSON DATA:', jsonData);
+                        console.log('🟢 Has sections?:', jsonData.sections?.length || 0);
+                        console.log('🟢 Has tag_cloud?:', jsonData.tag_cloud?.length || 0);
                         
                         // Extract sections and tag_cloud
                         const sections = jsonData.sections || [];
