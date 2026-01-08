@@ -1840,50 +1840,6 @@ function SentimentDashboardContent() {
                         </div>
                       );
                     })()}
-                    
-                    {/* Show full response for debugging */}
-                    <details style={{ marginTop: 16 }}>
-                      <summary style={{ cursor: 'pointer', fontSize: 13, color: '#6b7280', fontWeight: 500 }}>
-                        View Full Agent Response JSON
-                      </summary>
-                      <div style={{ position: 'relative', marginTop: 8 }}>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(JSON.stringify(negativeAgentResponse, null, 2));
-                            const btn = event?.target as HTMLButtonElement;
-                            const originalText = btn.textContent;
-                            btn.textContent = '✓ Copied!';
-                            setTimeout(() => {
-                              btn.textContent = originalText || 'Copy JSON';
-                            }, 2000);
-                          }}
-                          style={{
-                            padding: '4px 10px',
-                            fontSize: 11,
-                            fontWeight: 500,
-                            color: '#374151',
-                            backgroundColor: '#ffffff',
-                            border: '1px solid #d1d5db',
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Copy
-                        </button>
-                        <pre style={{ 
-                          padding: 10, 
-                          background: '#f9fafb', 
-                          borderRadius: 4,
-                          fontSize: 10,
-                          overflow: 'auto',
-                          maxHeight: 300,
-                          border: '1px solid #e5e7eb',
-                          marginTop: 8
-                        }}>
-                          {JSON.stringify(negativeAgentResponse, null, 2)}
-                        </pre>
-                      </div>
-                    </details>
                   </div>
                 )
                     ) : (
