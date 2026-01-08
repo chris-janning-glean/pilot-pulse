@@ -1587,8 +1587,46 @@ function SentimentDashboardContent() {
                         );
                       }
                       
-                      // Handle text content (markdown/plain text)
-                      if (content?.text) {
+                      // Fallback
+                      return <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>No data available</div>;
+                    })()}
+                  </div>
+                )
+                    ) : (
+                      <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>
+                        No negative feedback analysis available
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {/* Positive Feedback Agent */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#16a34a' }}>
+                      👍 Positive Feedback
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {positiveAgentLoading ? (
+                      <div style={{ padding: 20, textAlign: 'center', color: '#64748b', fontSize: 14 }}>
+                        Loading...
+                      </div>
+                    ) : positiveAgentResponse ? (
+                      positiveAgentResponse.error ? (
+                        <div style={{ padding: 16, color: '#991b1b', fontSize: 13 }}>
+                          Error: {positiveAgentResponse.error}
+                        </div>
+                      ) : (
+                        <div>
+                          {/* Render Positive Feedback Summary */}
+                          {(() => {
+                            const agentResponse = positiveAgentResponse;
+                            const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                            const content = gleanMessage?.content?.[0];
+                            let jsonData = content?.json;
+                            
+                            if (!jsonData && content?.text) {
                         const textContent = content.text;
                         return (
                           <div style={{ 
