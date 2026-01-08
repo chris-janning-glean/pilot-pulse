@@ -1399,112 +1399,68 @@ function SentimentDashboardContent() {
                             boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                           }}>
                             <div style={{ maxWidth: '80ch' }}>
-                              {/* Render JSON as structured content */}
-                              {jsonData.summary && (
-                                <div style={{ marginBottom: 24 }}>
-                                  <h3 style={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 600, 
-                                    color: '#0f172a', 
-                                    marginBottom: 12 
-                                  }}>
-                                    Summary
-                                  </h3>
-                                  <p style={{ 
-                                    fontSize: 14, 
-                                    color: '#334155', 
-                                    lineHeight: 1.7,
-                                    marginBottom: 0
-                                  }}>
-                                    {jsonData.summary}
-                                  </p>
-                                </div>
-                              )}
-                              
-                              {jsonData.issues && Array.isArray(jsonData.issues) && jsonData.issues.length > 0 && (
-                                <div style={{ marginBottom: 24 }}>
-                                  <h3 style={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 600, 
-                                    color: '#0f172a', 
-                                    marginBottom: 12,
-                                    paddingTop: 24,
-                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
-                                  }}>
-                                    Key Issues
-                                  </h3>
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                                    {jsonData.issues.map((issue: any, idx: number) => (
-                                      <div key={idx} style={{ 
-                                        padding: 16,
-                                        background: 'white',
-                                        border: '1px solid #e2e8f0',
-                                        borderRadius: 8
-                                      }}>
-                                        {issue.type && (
-                                          <div style={{ 
-                                            fontSize: 14, 
-                                            fontWeight: 600, 
-                                            color: '#0f172a',
-                                            marginBottom: 8
-                                          }}>
-                                            {issue.type}
-                                          </div>
-                                        )}
-                                        {issue.description && (
-                                          <div style={{ 
-                                            fontSize: 13, 
-                                            color: '#64748b',
-                                            lineHeight: 1.6,
-                                            marginBottom: issue.examples ? 8 : 0
-                                          }}>
-                                            {issue.description}
-                                          </div>
-                                        )}
-                                        {issue.examples && Array.isArray(issue.examples) && issue.examples.length > 0 && (
-                                          <div style={{ marginTop: 8 }}>
-                                            <div style={{ fontSize: 12, fontWeight: 500, color: '#64748b', marginBottom: 6 }}>
-                                              Examples:
-                                            </div>
-                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569', fontSize: 12, lineHeight: 1.6 }}>
-                                              {issue.examples.map((example: string, i: number) => (
-                                                <li key={i} style={{ marginBottom: 4 }}>{example}</li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        )}
+                              {/* Generic JSON Renderer */}
+                              {(() => {
+                                const renderValue = (val: any, key?: string, depth: number = 0): any => {
+                                  // Null/undefined
+                                  if (val === null || val === undefined) return null;
+                                  
+                                  // String
+                                  if (typeof val === 'string') {
+                                    return (
+                                      <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, marginBottom: 8 }}>
+                                        {val}
                                       </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              
-                              {jsonData.recommendations && Array.isArray(jsonData.recommendations) && jsonData.recommendations.length > 0 && (
-                                <div>
-                                  <h3 style={{ 
-                                    fontSize: 16, 
-                                    fontWeight: 600, 
-                                    color: '#0f172a', 
-                                    marginBottom: 12,
-                                    paddingTop: 24,
-                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
-                                  }}>
-                                    Recommendations
-                                  </h3>
-                                  <ul style={{ 
-                                    margin: 0, 
-                                    paddingLeft: 24, 
-                                    color: '#334155', 
-                                    fontSize: 14,
-                                    lineHeight: 1.7,
-                                    listStyleType: 'disc'
-                                  }}>
-                                    {jsonData.recommendations.map((rec: string, idx: number) => (
-                                      <li key={idx} style={{ marginBottom: 10 }}>{rec}</li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                                    );
+                                  }
+                                  
+                                  // Number/Boolean
+                                  if (typeof val === 'number' || typeof val === 'boolean') {
+                                    return (
+                                      <div style={{ fontSize: 14, color: '#6366f1', fontWeight: 500, marginBottom: 8 }}>
+                                        {String(val)}
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  // Array
+                                  if (Array.isArray(val)) {
+                                    return (
+                                      <ul style={{ margin: '8px 0 16px 0', paddingLeft: 24, listStyleType: 'disc' }}>
+                                        {val.map((item, i) => (
+                                          <li key={i} style={{ marginBottom: 10, fontSize: 14, color: '#334155', lineHeight: 1.6 }}>
+                                            {typeof item === 'object' ? renderValue(item, undefined, depth + 1) : String(item)}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  }
+                                  
+                                  // Object
+                                  if (typeof val === 'object') {
+                                    return Object.entries(val).map(([k, v], i) => (
+                                      <div key={k} style={{ marginBottom: 20 }}>
+                                        <div style={{ 
+                                          fontSize: depth === 0 ? 16 : 14,
+                                          fontWeight: 600,
+                                          color: '#0f172a',
+                                          marginBottom: 10,
+                                          textTransform: depth === 0 ? 'capitalize' : 'none',
+                                          paddingTop: depth === 0 && i > 0 ? 24 : 0,
+                                          borderTop: depth === 0 && i > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
+                                        }}>
+                                          {k.replace(/_/g, ' ')}
+                                        </div>
+                                        {renderValue(v, k, depth + 1)}
+                                      </div>
+                                    ));
+                                  }
+                                  
+                                  return String(val);
+                                };
+                                
+                                return renderValue(jsonData);
+                              })()}
                             </div>
                           </div>
                         );
