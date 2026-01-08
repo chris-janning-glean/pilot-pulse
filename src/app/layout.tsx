@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Footer } from '@/components/layout/Footer';
 import { Navigation } from '@/components/layout/Navigation';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata = {
   title: 'Glean Pilot Pulse',
@@ -88,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </main>
           <Footer />
         </div>
+        <Analytics />
       </body>
     </html>
   );
