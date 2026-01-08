@@ -1367,20 +1367,29 @@ function SentimentDashboardContent() {
                   <div>
                     {/* Extract and display agent content from messages array */}
                     {(() => {
+                      console.log('🔍 FULL AGENT RESPONSE:', agentResponse);
+                      
                       // Find the GLEAN_AI message
                       const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                      console.log('🔍 GLEAN MESSAGE:', gleanMessage);
+                      
                       const content = gleanMessage?.content?.[0];
+                      console.log('🔍 CONTENT OBJECT:', content);
+                      console.log('🔍 Content keys:', content ? Object.keys(content) : 'no content');
                       
                       // Try to detect and parse JSON
                       let jsonData = content?.json;
+                      console.log('🔍 content.json:', jsonData);
+                      
                       if (!jsonData && content?.text) {
+                        console.log('🔍 content.text exists:', content.text.substring(0, 100));
                         const trimmed = content.text.trim();
                         if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
                           try {
                             jsonData = JSON.parse(trimmed);
                             console.log('📊 Parsed JSON from text:', jsonData);
                           } catch (e) {
-                            // Not valid JSON, will handle as text
+                            console.log('❌ Failed to parse JSON:', e);
                           }
                         }
                       }
@@ -1758,18 +1767,36 @@ function SentimentDashboardContent() {
                         );
                       }
                       
-                      // Fallback for other formats
+                      // Fallback: show whatever we have
+                      console.log('⚠️ FALLBACK: Displaying raw content');
                       return (
                         <div style={{ 
-                          padding: 20, 
-                          background: '#fef2f2',
-                          border: '1px solid #fca5a5',
-                          borderLeft: '4px solid #ef4444',
+                          background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
+                          border: '1px solid #e2e8f0',
+                          borderLeft: '4px solid #fbbf24',
                           borderRadius: 16,
-                          color: '#991b1b',
-                          fontSize: 13
+                          padding: '24px 28px',
+                          marginTop: 24,
+                          marginBottom: 16,
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                         }}>
-                          No agent content found in response. Check the debug JSON below for details.
+                          <div style={{ marginBottom: 16, fontSize: 13, color: '#92400e', fontWeight: 500 }}>
+                            ⚠️ Unable to parse structured content. Displaying raw response:
+                          </div>
+                          <pre style={{ 
+                            fontSize: 13, 
+                            color: '#334155', 
+                            background: 'white',
+                            padding: 16,
+                            borderRadius: 8,
+                            overflow: 'auto',
+                            maxHeight: 600,
+                            lineHeight: 1.6,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                          }}>
+                            {content?.text || JSON.stringify(content, null, 2) || 'No content available'}
+                          </pre>
                         </div>
                       );
                     })()}
