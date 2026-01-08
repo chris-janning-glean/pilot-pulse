@@ -1494,33 +1494,52 @@ function SentimentDashboardContent() {
                                 <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
                                   Top Phrases
                                 </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                  {tagCloud.map((tag: any, idx: number) => {
-                                    if (!tag.phrase) return null;
-                                    
-                                    const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
-                                    const baseFontSize = 10;
-                                    const fontSize = baseFontSize + (frequency - 1) * 1.5;
-                                    const opacity = 0.5 + (frequency / 20);
-                                    
-                                    return (
-                                      <span
-                                        key={idx}
-                                        title={tag.example || tag.phrase}
-                                        style={{
-                                          fontSize: `${fontSize}px`,
-                                          color: '#3b82f6',
-                                          opacity: opacity,
-                                          cursor: 'help',
-                                          padding: '4px 8px',
-                                          borderRadius: 4,
-                                          backgroundColor: 'rgba(59, 130, 246, 0.1)'
-                                        }}
-                                      >
-                                        {tag.phrase}
-                                      </span>
-                                    );
-                                  })}
+                                <div style={{ 
+                                  display: 'flex', 
+                                  flexWrap: 'wrap', 
+                                  gap: 8,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  minHeight: 120,
+                                  padding: '16px 8px'
+                                }}>
+                                  {tagCloud
+                                    .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))
+                                    .map((tag: any, idx: number) => {
+                                      if (!tag.phrase) return null;
+                                      
+                                      const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
+                                      const baseFontSize = 11;
+                                      const fontSize = baseFontSize + (frequency - 1) * 2;
+                                      const fontWeight = frequency >= 7 ? 600 : frequency >= 4 ? 500 : 400;
+                                      
+                                      return (
+                                        <span
+                                          key={idx}
+                                          title={tag.example || tag.phrase}
+                                          style={{
+                                            fontSize: `${fontSize}px`,
+                                            fontWeight: fontWeight,
+                                            color: '#3b82f6',
+                                            cursor: 'help',
+                                            padding: '4px 10px',
+                                            display: 'inline-block',
+                                            transition: 'all 0.2s',
+                                            order: frequency >= 7 ? -1 : frequency >= 4 ? 0 : 1
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                            e.currentTarget.style.color = '#2563eb';
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                            e.currentTarget.style.color = '#3b82f6';
+                                          }}
+                                        >
+                                          {tag.phrase}
+                                        </span>
+                                      );
+                                    })}
                                 </div>
                               </div>
                             )}
@@ -1665,33 +1684,52 @@ function SentimentDashboardContent() {
                                 <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
                                   Top Phrases
                                 </div>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                  {tagCloud.map((tag: any, idx: number) => {
-                                    if (!tag.phrase) return null;
-                                    
-                                    const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
-                                    const baseFontSize = 10;
-                                    const fontSize = baseFontSize + (frequency - 1) * 1.5;
-                                    const opacity = 0.5 + (frequency / 20);
-                                    
-                                    return (
-                                      <span
-                                        key={idx}
-                                        title={tag.example || tag.phrase}
-                                        style={{
-                                          fontSize: `${fontSize}px`,
-                                          color: '#16a34a',
-                                          opacity: opacity,
-                                          cursor: 'help',
-                                          padding: '4px 8px',
-                                          borderRadius: 4,
-                                          backgroundColor: 'rgba(22, 163, 74, 0.1)'
-                                        }}
-                                      >
-                                        {tag.phrase}
-                                      </span>
-                                    );
-                                  })}
+                                <div style={{ 
+                                  display: 'flex', 
+                                  flexWrap: 'wrap', 
+                                  gap: 8,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  minHeight: 120,
+                                  padding: '16px 8px'
+                                }}>
+                                  {tagCloud
+                                    .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))
+                                    .map((tag: any, idx: number) => {
+                                      if (!tag.phrase) return null;
+                                      
+                                      const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
+                                      const baseFontSize = 11;
+                                      const fontSize = baseFontSize + (frequency - 1) * 2;
+                                      const fontWeight = frequency >= 7 ? 600 : frequency >= 4 ? 500 : 400;
+                                      
+                                      return (
+                                        <span
+                                          key={idx}
+                                          title={tag.example || tag.phrase}
+                                          style={{
+                                            fontSize: `${fontSize}px`,
+                                            fontWeight: fontWeight,
+                                            color: '#16a34a',
+                                            cursor: 'help',
+                                            padding: '4px 10px',
+                                            display: 'inline-block',
+                                            transition: 'all 0.2s',
+                                            order: frequency >= 7 ? -1 : frequency >= 4 ? 0 : 1
+                                          }}
+                                          onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                            e.currentTarget.style.color = '#15803d';
+                                          }}
+                                          onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                            e.currentTarget.style.color = '#16a34a';
+                                          }}
+                                        >
+                                          {tag.phrase}
+                                        </span>
+                                      );
+                                    })}
                                 </div>
                               </div>
                             )}
