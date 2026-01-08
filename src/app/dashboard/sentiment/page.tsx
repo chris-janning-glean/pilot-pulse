@@ -1501,16 +1501,21 @@ function SentimentDashboardContent() {
                                     listItems = [];
                                   }
                                   
-                                  // Heading types
-                                  if (type.includes('heading') || type.startsWith('h')) {
-                                    const level = type.includes('1') || type === 'h1' ? 1 : type.includes('2') || type === 'h2' ? 2 : 3;
+                                  // Heading types (check both type and style fields)
+                                  if (type.includes('heading') || type.startsWith('h') || styleAttr.startsWith('h')) {
+                                    // Determine level from style field first (h1, h2, h3), then from type
+                                    let level = 3;
+                                    if (styleAttr === 'h1' || type.includes('1') || type === 'h1') level = 1;
+                                    else if (styleAttr === 'h2' || type.includes('2') || type === 'h2') level = 2;
+                                    else if (styleAttr === 'h3' || type.includes('3') || type === 'h3') level = 3;
+                                    
                                     rendered.push(
                                       <div key={idx} style={{ 
-                                        fontSize: level === 1 ? 22 : level === 2 ? 16 : 14,
+                                        fontSize: level === 1 ? 24 : level === 2 ? 18 : 14,
                                         fontWeight: level === 1 ? 700 : 600,
                                         color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#0f172a',
                                         marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 24 : 20,
-                                        marginBottom: 12,
+                                        marginBottom: 14,
                                         paddingTop: level === 1 && idx > 0 ? 28 : 0,
                                         borderTop: level === 1 && idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
                                       }}>
