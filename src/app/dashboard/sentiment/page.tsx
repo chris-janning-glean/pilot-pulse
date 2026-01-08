@@ -1333,9 +1333,15 @@ function SentimentDashboardContent() {
             </CardHeader>
             <CardContent>
               {agentLoading ? (
-                <div style={{ padding: 20, textAlign: 'center', color: '#6b7280' }}>
-                  <div style={{ marginBottom: 12 }}>Loading agent response...</div>
-                  <div style={{ fontSize: 12 }}>Agent ID: 4a5c57e875fa46e38ae4be94345fc7da</div>
+                <div style={{ 
+                  padding: 20, 
+                  textAlign: 'center', 
+                  background: '#0f172a',
+                  borderRadius: 8,
+                  border: '1px solid #1e293b'
+                }}>
+                  <div style={{ marginBottom: 12, color: '#94a3b8', fontSize: 13 }}>Loading agent response...</div>
+                  <div style={{ fontSize: 11, color: '#64748b', fontFamily: 'monospace' }}>Agent ID: 4a5c57e875fa46e38ae4be94345fc7da</div>
                 </div>
               ) : agentResponse ? (
                 agentResponse.error ? (
@@ -1359,18 +1365,20 @@ function SentimentDashboardContent() {
                       if (textContent) {
                         return (
                           <div style={{ 
-                            padding: 24, 
-                            background: '#ffffff',
-                            border: '1px solid #d1d5db',
+                            padding: 20, 
+                            background: '#0f172a',
+                            border: '1px solid #1e293b',
                             borderRadius: 8,
                             marginBottom: 16,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
                           }}>
                             <div style={{ 
-                              fontSize: 15, 
-                              color: '#111827',
-                              lineHeight: 1.8,
-                              whiteSpace: 'pre-wrap'
+                              fontSize: 13, 
+                              color: '#e2e8f0',
+                              lineHeight: 1.7,
+                              whiteSpace: 'pre-wrap',
+                              letterSpacing: '0.01em'
                             }}>
                               {textContent}
                             </div>
@@ -1441,8 +1449,16 @@ function SentimentDashboardContent() {
                   </div>
                 )
               ) : (
-                <div style={{ padding: 20, textAlign: 'center', color: '#6b7280', fontSize: 14 }}>
-                  No agent response yet. Data will load when you select a customer.
+                <div style={{ 
+                  padding: 20, 
+                  textAlign: 'center', 
+                  background: '#0f172a',
+                  borderRadius: 8,
+                  border: '1px solid #1e293b'
+                }}>
+                  <div style={{ color: '#94a3b8', fontSize: 13 }}>
+                    No agent response yet. Data will load when you select a customer.
+                  </div>
                 </div>
               )}
             </CardContent>
