@@ -1408,46 +1408,108 @@ function SentimentDashboardContent() {
                             boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                           }}>
                             <div style={{ maxWidth: '80ch' }}>
-                              {/* Render based on type, text, style structure */}
+                              {/* Render Feedback Summary Agent Response */}
                               {(() => {
-                                console.log('📋 Rendering JSON:', jsonData);
-                                console.log('📋 JSON keys:', Object.keys(jsonData));
-                                console.log('📋 Is Array?:', Array.isArray(jsonData));
-                                
-                                // Get items array - check all possible locations including nested sections
-                                let items = [];
-                                if (Array.isArray(jsonData)) {
-                                  // Check if array items have sections property
-                                  jsonData.forEach(obj => {
-                                    if (obj.sections && Array.isArray(obj.sections)) {
-                                      items.push(...obj.sections);
-                                    } else if (obj.type && obj.text) {
-                                      items.push(obj);
+                                // Helper: Render a single summary object's sections
+                                const renderSections = (sections: any[], summaryIdx: number = 0) => {
+                                  if (!Array.isArray(sections) || sections.length === 0) return null;
+                                  
+                                  const rendered: React.ReactNode[] = [];
+                                  
+                                  sections.forEach((section: any, idx: number) => {
+                                    if (!section || !section.text) return;
+                                    
+                                    const text = section.text;
+                                    const type = (section.type || 'paragraph').toLowerCase();
+                                    const style = (section.style || '').toLowerCase();
+                                    
+                                    // HEADINGS
+                                    if (type === 'heading') {
+                                      let level = 3;
+                                      if (style === 'h1') level = 1;
+                                      else if (style === 'h2') level = 2;
+                                      else if (style === 'h3') level = 3;
+                                      
+                                      const headingStyles: React.CSSProperties = {
+                                        fontSize: level === 1 ? 16 : level === 2 ? 14 : 13,
+                                        fontWeight: level === 1 ? 700 : 600,
+                                        color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#475569',
+                                        marginTop: level === 1 && idx > 0 ? 32 : level === 2 ? 24 : 16,
+                                        marginBottom: level === 1 ? 16 : 12,
+                                        paddingTop: level === 1 && idx > 0 ? 28 : 0,
+                                        borderTop: level === 1 && idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
+                                      };
+                                      
+                                      rendered.push(
+                                        <div key={`${summaryIdx}-${idx}`} style={headingStyles}>
+                                          {text}
+                                        </div>
+                                      );
+                                    }
+                                    // PARAGRAPHS
+                                    else if (type === 'paragraph') {
+                                      // Check if it's a quote (starts and ends with quotes)
+                                      const isQuote = (text.startsWith('"') && text.endsWith('"')) || 
+                                                     (text.startsWith("'") && text.endsWith("'"));
+                                      
+                                      const paragraphStyles: React.CSSProperties = isQuote ? {
+                                        fontSize: 14,
+                                        color: '#475569',
+                                        lineHeight: 1.7,
+                                        marginBottom: 16,
+                                        paddingLeft: 16,
+                                        borderLeft: '3px solid #cbd5e1',
+                                        fontStyle: 'italic'
+                                      } : {
+                                        fontSize: 14,
+                                        color: '#334155',
+                                        lineHeight: 1.7,
+                                        marginBottom: 12
+                                      };
+                                      
+                                      rendered.push(
+                                        <div key={`${summaryIdx}-${idx}`} style={paragraphStyles}>
+                                          {text}
+                                        </div>
+                                      );
+                                    }
+                                    // Unknown type: treat as paragraph
+                                    else {
+                                      rendered.push(
+                                        <div key={`${summaryIdx}-${idx}`} style={{ 
+                                          fontSize: 14,
+                                          color: '#334155',
+                                          lineHeight: 1.7,
+                                          marginBottom: 12
+                                        }}>
+                                          {text}
+                                        </div>
+                                      );
                                     }
                                   });
-                                  // If no sections found, use the array itself
-                                  if (items.length === 0) {
-                                    items = jsonData;
-                                  }
-                                } else if (jsonData.sections && Array.isArray(jsonData.sections)) {
-                                  items = jsonData.sections;
-                                } else if (jsonData.items) {
-                                  items = jsonData.items;
-                                } else if (jsonData.content) {
-                                  items = jsonData.content;
-                                } else if (jsonData.type && jsonData.text) {
-                                  // If jsonData itself has type/text/style, wrap it
-                                  items = [jsonData];
+                                  
+                                  return rendered;
+                                };
+                                
+                                // Determine structure: single summary or array of summaries
+                                let summaries: any[] = [];
+                                
+                                if (Array.isArray(jsonData)) {
+                                  // Array of summary objects
+                                  summaries = jsonData.filter(obj => obj && obj.sections);
+                                } else if (jsonData.sections) {
+                                  // Single summary object
+                                  summaries = [jsonData];
                                 }
                                 
-                                console.log('📋 Items to render:', items);
+                                console.log('📋 Found summaries:', summaries.length);
                                 
-                                if (!Array.isArray(items) || items.length === 0) {
-                                  // Fallback: show JSON structure for debugging
+                                // Fallback if no valid summaries
+                                if (summaries.length === 0) {
                                   return (
                                     <div>
                                       <div style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>
-                                        Unable to parse structured content. Showing raw data:
+                                        Unable to find sections in agent response. Showing raw data:
                                       </div>
                                       <pre style={{ 
                                         fontSize: 12, 
@@ -1456,7 +1518,8 @@ function SentimentDashboardContent() {
                                         padding: 16,
                                         borderRadius: 8,
                                         overflow: 'auto',
-                                        maxHeight: 400
+                                        maxHeight: 400,
+                                        lineHeight: 1.5
                                       }}>
                                         {JSON.stringify(jsonData, null, 2)}
                                       </pre>
@@ -1464,101 +1527,8 @@ function SentimentDashboardContent() {
                                   );
                                 }
                                 
-                                // Render each item based on type, text, style
-                                const rendered: React.ReactNode[] = [];
-                                let listItems: any[] = [];
-                                
-                                items.forEach((item: any, idx: number) => {
-                                  if (!item || !item.text) return;
-                                  
-                                  const text = item.text;
-                                  const type = (item.type || 'paragraph').toLowerCase();
-                                  const styleAttr = (item.style || '').toLowerCase();
-                                  
-                                  // Handle list items (accumulate them)
-                                  if (type.includes('list') || type.includes('bullet')) {
-                                    listItems.push({ text, style: styleAttr });
-                                    return;
-                                  }
-                                  
-                                  // Flush accumulated list items
-                                  if (listItems.length > 0) {
-                                    rendered.push(
-                                      <ul key={`list-${idx}`} style={{ margin: '12px 0', paddingLeft: 24, listStyleType: 'disc' }}>
-                                        {listItems.map((li, i) => (
-                                          <li key={i} style={{ 
-                                            fontSize: 14, 
-                                            color: '#334155', 
-                                            lineHeight: 1.7, 
-                                            marginBottom: 8,
-                                            fontWeight: li.style.includes('bold') ? 600 : 400 
-                                          }}>
-                                            {li.text}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    );
-                                    listItems = [];
-                                  }
-                                  
-                                  // Heading types (check both type and style fields)
-                                  if (type.includes('heading') || type.startsWith('h') || styleAttr.startsWith('h')) {
-                                    // Determine level from style field first (h1, h2, h3), then from type
-                                    let level = 3;
-                                    if (styleAttr === 'h1' || type.includes('1') || type === 'h1') level = 1;
-                                    else if (styleAttr === 'h2' || type.includes('2') || type === 'h2') level = 2;
-                                    else if (styleAttr === 'h3' || type.includes('3') || type === 'h3') level = 3;
-                                    
-                                    rendered.push(
-                                      <div key={idx} style={{ 
-                                        fontSize: level === 1 ? 16 : level === 2 ? 14 : 13,
-                                        fontWeight: level === 1 ? 700 : 600,
-                                        color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#0f172a',
-                                        marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 24 : 20,
-                                        marginBottom: 14,
-                                        paddingTop: level === 1 && idx > 0 ? 28 : 0,
-                                        borderTop: level === 1 && idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
-                                      }}>
-                                        {text}
-                                      </div>
-                                    );
-                                  } else {
-                                    // Paragraph or default
-                                    rendered.push(
-                                      <div key={idx} style={{ 
-                                        fontSize: 14,
-                                        color: '#334155',
-                                        lineHeight: 1.7,
-                                        marginBottom: 12,
-                                        fontWeight: styleAttr.includes('bold') ? 600 : 400,
-                                        fontStyle: styleAttr.includes('italic') ? 'italic' : 'normal'
-                                      }}>
-                                        {text}
-                                      </div>
-                                    );
-                                  }
-                                });
-                                
-                                // Flush any remaining list items
-                                if (listItems.length > 0) {
-                                  rendered.push(
-                                    <ul key="list-final" style={{ margin: '12px 0', paddingLeft: 24, listStyleType: 'disc' }}>
-                                      {listItems.map((li, i) => (
-                                        <li key={i} style={{ 
-                                          fontSize: 14, 
-                                          color: '#334155', 
-                                          lineHeight: 1.7, 
-                                          marginBottom: 8,
-                                          fontWeight: li.style.includes('bold') ? 600 : 400 
-                                        }}>
-                                          {li.text}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  );
-                                }
-                                
-                                return rendered;
+                                // Render all summaries (usually just one or two)
+                                return summaries.map((summary, idx) => renderSections(summary.sections, idx));
                               })()}
                             </div>
                           </div>
