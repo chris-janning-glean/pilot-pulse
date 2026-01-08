@@ -383,16 +383,30 @@ function SentimentDashboardContent() {
           return fields;
         }
         
-        for (const s of snippets) {
-          const text = s.text || '';
-          if (text.startsWith('Deployment:')) fields.deployment = text.replace('Deployment:', '').trim();
-          else if (text.startsWith('User:')) fields.user = text.replace('User:', '').trim();
-          else if (text.startsWith('STT:')) fields.stt = text.replace('STT:', '').trim();
-          else if (text.startsWith('Category:')) fields.category = text.replace('Category:', '').trim();
-          else if (text.startsWith('Issue:')) fields.issueType = text.replace('Issue:', '').trim();
-          else if (text.startsWith('Comments:')) fields.comments = text.replace('Comments:', '').trim();
-          else if (text.startsWith('AgentId:')) fields.agentId = text.replace('AgentId:', '').trim();
-        }
+        // Combine all snippet text
+        const combinedText = snippets.map(s => s.text || '').join(' ');
+        
+        // Extract fields using regex to handle both multi-line and single-line formats
+        const deploymentMatch = combinedText.match(/Deployment:\s*([^\s]+)/);
+        if (deploymentMatch) fields.deployment = deploymentMatch[1];
+        
+        const userMatch = combinedText.match(/User:\s*([^\s]+)/);
+        if (userMatch) fields.user = userMatch[1];
+        
+        const sttMatch = combinedText.match(/STT:\s*([^\s]+)/);
+        if (sttMatch) fields.stt = sttMatch[1];
+        
+        const categoryMatch = combinedText.match(/Category:\s*([^I]+?)(?=Issue:|$)/);
+        if (categoryMatch) fields.category = categoryMatch[1].trim();
+        
+        const issueMatch = combinedText.match(/Issue:\s*([^C]+?)(?=Comments:|$)/);
+        if (issueMatch) fields.issueType = issueMatch[1].trim();
+        
+        const commentsMatch = combinedText.match(/Comments:\s*(.+?)(?=Deployment:|User:|STT:|Category:|Issue:|AgentId:|$)/);
+        if (commentsMatch) fields.comments = commentsMatch[1].trim();
+        
+        const agentMatch = combinedText.match(/AgentId:\s*([^\s]+)/);
+        if (agentMatch) fields.agentId = agentMatch[1];
         
         // Fallback: if User not found in snippets, try title
         if (!fields.user) {
