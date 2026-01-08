@@ -1128,82 +1128,82 @@ function SentimentDashboardContent() {
                           </thead>
                           <tbody>
                             {currentItems.map((item, index) => (
-                        <tr 
-                          key={item.id || index}
-                          style={{ 
-                            borderBottom: '1px solid #e5e7eb',
-                            backgroundColor: index % 2 === 0 ? 'white' : '#fafafa'
-                          }}
-                        >
-                          <td style={{ padding: '12px', verticalAlign: 'middle' }}>
-                            <a
-                              href={item.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                color: '#2563eb',
-                                textDecoration: 'none',
-                                fontWeight: 500,
-                                fontSize: 13,
-                              }}
-                            >
-                              {item.ticketKey}
-                            </a>
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#6b7280' }}>
-                            {(item as any).date || '-'}
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', textAlign: 'center' }}>
-                            {(item as any).sentiment === 'positive' ? (
-                              <span style={{
-                                padding: '3px 8px',
-                                borderRadius: 4,
-                                fontSize: 12,
-                                fontWeight: 500,
-                                backgroundColor: '#dcfce7',
-                                color: '#166534',
-                              }}>
-                                👍
-                              </span>
-                            ) : (
-                              <span style={{
-                                padding: '3px 8px',
-                                borderRadius: 4,
-                                fontSize: 12,
-                                fontWeight: 500,
-                                backgroundColor: '#fee2e2',
-                                color: '#991b1b',
-                              }}>
-                                👎
-                              </span>
-                            )}
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
-                            {item.deployment || '-'}
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
-                            {(item as any).user || '-'}
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
-                            {item.issueType || '-'}
-                          </td>
-                          <td style={{ padding: '12px', verticalAlign: 'middle', maxWidth: 300 }}>
-                            {item.comments ? (
-                              <div style={{ 
-                                fontSize: 13, 
-                                lineHeight: 1.5,
-                                maxHeight: 100,
-                                overflow: 'auto',
-                                color: '#374151'
-                              }}>
-                                {item.comments}
-                              </div>
-                            ) : (
-                              <span style={{ color: '#9ca3af' }}>-</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                              <tr 
+                                key={item.id || index}
+                                style={{ 
+                                  borderBottom: '1px solid #e5e7eb',
+                                  backgroundColor: index % 2 === 0 ? 'white' : '#fafafa'
+                                }}
+                              >
+                                <td style={{ padding: '12px', verticalAlign: 'middle' }}>
+                                  <a
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{
+                                      color: '#2563eb',
+                                      textDecoration: 'none',
+                                      fontWeight: 500,
+                                      fontSize: 13,
+                                    }}
+                                  >
+                                    {item.ticketKey}
+                                  </a>
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#6b7280' }}>
+                                  {(item as any).date || '-'}
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', textAlign: 'center' }}>
+                                  {(item as any).sentiment === 'positive' ? (
+                                    <span style={{
+                                      padding: '3px 8px',
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      fontWeight: 500,
+                                      backgroundColor: '#dcfce7',
+                                      color: '#166534',
+                                    }}>
+                                      👍
+                                    </span>
+                                  ) : (
+                                    <span style={{
+                                      padding: '3px 8px',
+                                      borderRadius: 4,
+                                      fontSize: 12,
+                                      fontWeight: 500,
+                                      backgroundColor: '#fee2e2',
+                                      color: '#991b1b',
+                                    }}>
+                                      👎
+                                    </span>
+                                  )}
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
+                                  {item.deployment || '-'}
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
+                                  {(item as any).user || '-'}
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
+                                  {item.issueType || '-'}
+                                </td>
+                                <td style={{ padding: '12px', verticalAlign: 'middle', maxWidth: 300 }}>
+                                  {item.comments ? (
+                                    <div style={{ 
+                                      fontSize: 13, 
+                                      lineHeight: 1.5,
+                                      maxHeight: 100,
+                                      overflow: 'auto',
+                                      color: '#374151'
+                                    }}>
+                                      {item.comments}
+                                    </div>
+                                  ) : (
+                                    <span style={{ color: '#9ca3af' }}>-</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
                             </tbody>
                           </table>
                         </div>
