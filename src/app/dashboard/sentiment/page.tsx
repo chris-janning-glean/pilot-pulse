@@ -968,16 +968,8 @@ function SentimentDashboardContent() {
                       name="👎 Negative"
                       radius={[4, 4, 0, 0]}
                     />
-                  </BarChart>
-                </ResponsiveContainer>
-                <div style={{ 
-                  marginTop: 16, 
-                  fontSize: 12, 
-                  color: '#9ca3af',
-                  textAlign: 'center'
-                }}>
-                  Positive in green, negative in red
-                </div>
+                </BarChart>
+              </ResponsiveContainer>
               </CardContent>
             </Card>
 
