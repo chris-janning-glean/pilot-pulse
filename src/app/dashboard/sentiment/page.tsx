@@ -1419,9 +1419,115 @@ function SentimentDashboardContent() {
                   {negativeAgentLoading ? (
                     <div>Loading...</div>
                   ) : negativeAgentResponse ? (
-                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>
-                      {JSON.stringify(negativeAgentResponse, null, 2)}
-                    </pre>
+                    <>
+                      {(() => {
+                        const agentResponse = negativeAgentResponse;
+                        const gleanMessage = agentResponse?.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                        const content = gleanMessage?.content?.[0];
+                        let jsonData = content?.json;
+                        
+                        if (!jsonData && content?.text) {
+                          const trimmed = content.text.trim();
+                          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                            try {
+                              jsonData = JSON.parse(trimmed);
+                            } catch (e) {}
+                          }
+                        }
+                        
+                        if (!jsonData) return <div>No data available</div>;
+                        
+                        // Extract sections and tag_cloud
+                        const sections = jsonData.sections || [];
+                        const tagCloud = jsonData.tag_cloud || [];
+                        
+                        return (
+                          <>
+                            {/* Sentiment Summary Section */}
+                            {sections.length > 0 ? (
+                              <div style={{ marginBottom: 24 }}>
+                                {sections.map((section: any, idx: number) => {
+                                  if (!section || !section.text) return null;
+                                  
+                                  const text = section.text;
+                                  const type = section.type || 'paragraph';
+                                  const style = section.style || '';
+                                  
+                                  if (type === 'heading') {
+                                    let level = 3;
+                                    if (style === 'h1') level = 1;
+                                    else if (style === 'h2') level = 2;
+                                    else if (style === 'h3') level = 3;
+                                    
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: level === 1 ? 16 : level === 2 ? 14 : 13,
+                                        fontWeight: level === 1 ? 700 : 600,
+                                        color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#475569',
+                                        marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 20 : 14,
+                                        marginBottom: 12
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  } else {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: 13,
+                                        color: '#334155',
+                                        lineHeight: 1.7,
+                                        marginBottom: 10
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  }
+                                })}
+                              </div>
+                            ) : (
+                              <div>No summary available</div>
+                            )}
+                            
+                            {/* Tag Cloud Section */}
+                            {tagCloud.length > 0 && (
+                              <div>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
+                                  Top Phrases
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                  {tagCloud.map((tag: any, idx: number) => {
+                                    if (!tag.phrase) return null;
+                                    
+                                    const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
+                                    const baseFontSize = 10;
+                                    const fontSize = baseFontSize + (frequency - 1) * 1.5;
+                                    const opacity = 0.5 + (frequency / 20);
+                                    
+                                    return (
+                                      <span
+                                        key={idx}
+                                        title={tag.example || tag.phrase}
+                                        style={{
+                                          fontSize: `${fontSize}px`,
+                                          color: '#3b82f6',
+                                          opacity: opacity,
+                                          cursor: 'help',
+                                          padding: '4px 8px',
+                                          borderRadius: 4,
+                                          backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                                        }}
+                                      >
+                                        {tag.phrase}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </>
                   ) : (
                     <div>No data</div>
                   )}
@@ -1439,9 +1545,115 @@ function SentimentDashboardContent() {
                   {positiveAgentLoading ? (
                     <div>Loading...</div>
                   ) : positiveAgentResponse ? (
-                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12 }}>
-                      {JSON.stringify(positiveAgentResponse, null, 2)}
-                    </pre>
+                    <>
+                      {(() => {
+                        const agentResponse = positiveAgentResponse;
+                        const gleanMessage = agentResponse?.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                        const content = gleanMessage?.content?.[0];
+                        let jsonData = content?.json;
+                        
+                        if (!jsonData && content?.text) {
+                          const trimmed = content.text.trim();
+                          if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                            try {
+                              jsonData = JSON.parse(trimmed);
+                            } catch (e) {}
+                          }
+                        }
+                        
+                        if (!jsonData) return <div>No data available</div>;
+                        
+                        // Extract sections and tag_cloud
+                        const sections = jsonData.sections || [];
+                        const tagCloud = jsonData.tag_cloud || [];
+                        
+                        return (
+                          <>
+                            {/* Sentiment Summary Section */}
+                            {sections.length > 0 ? (
+                              <div style={{ marginBottom: 24 }}>
+                                {sections.map((section: any, idx: number) => {
+                                  if (!section || !section.text) return null;
+                                  
+                                  const text = section.text;
+                                  const type = section.type || 'paragraph';
+                                  const style = section.style || '';
+                                  
+                                  if (type === 'heading') {
+                                    let level = 3;
+                                    if (style === 'h1') level = 1;
+                                    else if (style === 'h2') level = 2;
+                                    else if (style === 'h3') level = 3;
+                                    
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: level === 1 ? 16 : level === 2 ? 14 : 13,
+                                        fontWeight: level === 1 ? 700 : 600,
+                                        color: level === 1 ? '#0f172a' : level === 2 ? '#16a34a' : '#475569',
+                                        marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 20 : 14,
+                                        marginBottom: 12
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  } else {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: 13,
+                                        color: '#334155',
+                                        lineHeight: 1.7,
+                                        marginBottom: 10
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  }
+                                })}
+                              </div>
+                            ) : (
+                              <div>No summary available</div>
+                            )}
+                            
+                            {/* Tag Cloud Section */}
+                            {tagCloud.length > 0 && (
+                              <div>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
+                                  Top Phrases
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                                  {tagCloud.map((tag: any, idx: number) => {
+                                    if (!tag.phrase) return null;
+                                    
+                                    const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
+                                    const baseFontSize = 10;
+                                    const fontSize = baseFontSize + (frequency - 1) * 1.5;
+                                    const opacity = 0.5 + (frequency / 20);
+                                    
+                                    return (
+                                      <span
+                                        key={idx}
+                                        title={tag.example || tag.phrase}
+                                        style={{
+                                          fontSize: `${fontSize}px`,
+                                          color: '#16a34a',
+                                          opacity: opacity,
+                                          cursor: 'help',
+                                          padding: '4px 8px',
+                                          borderRadius: 4,
+                                          backgroundColor: 'rgba(22, 163, 74, 0.1)'
+                                        }}
+                                      >
+                                        {tag.phrase}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </>
                   ) : (
                     <div>No data</div>
                   )}
