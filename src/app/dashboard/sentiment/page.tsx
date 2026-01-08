@@ -1399,67 +1399,106 @@ function SentimentDashboardContent() {
                             boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                           }}>
                             <div style={{ maxWidth: '80ch' }}>
-                              {/* Generic JSON Renderer */}
+                              {/* Render based on type, text, style structure */}
                               {(() => {
-                                const renderValue = (val: any, key?: string, depth: number = 0): any => {
-                                  // Null/undefined
-                                  if (val === null || val === undefined) return null;
+                                console.log('📋 Rendering JSON:', jsonData);
+                                
+                                // Get items array
+                                const items = Array.isArray(jsonData) ? jsonData : (jsonData.items || jsonData.content || []);
+                                if (!Array.isArray(items) || items.length === 0) {
+                                  return <div style={{ fontSize: 14, color: '#64748b' }}>No content to display</div>;
+                                }
+                                
+                                // Render each item based on type, text, style
+                                const rendered: React.ReactNode[] = [];
+                                let listItems: any[] = [];
+                                
+                                items.forEach((item: any, idx: number) => {
+                                  if (!item || !item.text) return;
                                   
-                                  // String
-                                  if (typeof val === 'string') {
-                                    return (
-                                      <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7, marginBottom: 8 }}>
-                                        {val}
-                                      </div>
-                                    );
+                                  const text = item.text;
+                                  const type = (item.type || 'paragraph').toLowerCase();
+                                  const styleAttr = (item.style || '').toLowerCase();
+                                  
+                                  // Handle list items (accumulate them)
+                                  if (type.includes('list') || type.includes('bullet')) {
+                                    listItems.push({ text, style: styleAttr });
+                                    return;
                                   }
                                   
-                                  // Number/Boolean
-                                  if (typeof val === 'number' || typeof val === 'boolean') {
-                                    return (
-                                      <div style={{ fontSize: 14, color: '#6366f1', fontWeight: 500, marginBottom: 8 }}>
-                                        {String(val)}
-                                      </div>
-                                    );
-                                  }
-                                  
-                                  // Array
-                                  if (Array.isArray(val)) {
-                                    return (
-                                      <ul style={{ margin: '8px 0 16px 0', paddingLeft: 24, listStyleType: 'disc' }}>
-                                        {val.map((item, i) => (
-                                          <li key={i} style={{ marginBottom: 10, fontSize: 14, color: '#334155', lineHeight: 1.6 }}>
-                                            {typeof item === 'object' ? renderValue(item, undefined, depth + 1) : String(item)}
+                                  // Flush accumulated list items
+                                  if (listItems.length > 0) {
+                                    rendered.push(
+                                      <ul key={`list-${idx}`} style={{ margin: '12px 0', paddingLeft: 24, listStyleType: 'disc' }}>
+                                        {listItems.map((li, i) => (
+                                          <li key={i} style={{ 
+                                            fontSize: 14, 
+                                            color: '#334155', 
+                                            lineHeight: 1.7, 
+                                            marginBottom: 8,
+                                            fontWeight: li.style.includes('bold') ? 600 : 400 
+                                          }}>
+                                            {li.text}
                                           </li>
                                         ))}
                                       </ul>
                                     );
+                                    listItems = [];
                                   }
                                   
-                                  // Object
-                                  if (typeof val === 'object') {
-                                    return Object.entries(val).map(([k, v], i) => (
-                                      <div key={k} style={{ marginBottom: 20 }}>
-                                        <div style={{ 
-                                          fontSize: depth === 0 ? 16 : 14,
-                                          fontWeight: 600,
-                                          color: '#0f172a',
-                                          marginBottom: 10,
-                                          textTransform: depth === 0 ? 'capitalize' : 'none',
-                                          paddingTop: depth === 0 && i > 0 ? 24 : 0,
-                                          borderTop: depth === 0 && i > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
-                                        }}>
-                                          {k.replace(/_/g, ' ')}
-                                        </div>
-                                        {renderValue(v, k, depth + 1)}
+                                  // Heading types
+                                  if (type.includes('heading') || type.startsWith('h')) {
+                                    const level = type.includes('1') || type === 'h1' ? 1 : type.includes('2') || type === 'h2' ? 2 : 3;
+                                    rendered.push(
+                                      <div key={idx} style={{ 
+                                        fontSize: level === 1 ? 18 : level === 2 ? 16 : 14,
+                                        fontWeight: 600,
+                                        color: '#0f172a',
+                                        marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 24 : 20,
+                                        marginBottom: 12,
+                                        paddingTop: level === 1 && idx > 0 ? 28 : 0,
+                                        borderTop: level === 1 && idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
+                                      }}>
+                                        {text}
                                       </div>
-                                    ));
+                                    );
+                                  } else {
+                                    // Paragraph or default
+                                    rendered.push(
+                                      <div key={idx} style={{ 
+                                        fontSize: 14,
+                                        color: '#334155',
+                                        lineHeight: 1.7,
+                                        marginBottom: 12,
+                                        fontWeight: styleAttr.includes('bold') ? 600 : 400,
+                                        fontStyle: styleAttr.includes('italic') ? 'italic' : 'normal'
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
                                   }
-                                  
-                                  return String(val);
-                                };
+                                });
                                 
-                                return renderValue(jsonData);
+                                // Flush any remaining list items
+                                if (listItems.length > 0) {
+                                  rendered.push(
+                                    <ul key="list-final" style={{ margin: '12px 0', paddingLeft: 24, listStyleType: 'disc' }}>
+                                      {listItems.map((li, i) => (
+                                        <li key={i} style={{ 
+                                          fontSize: 14, 
+                                          color: '#334155', 
+                                          lineHeight: 1.7, 
+                                          marginBottom: 8,
+                                          fontWeight: li.style.includes('bold') ? 600 : 400 
+                                        }}>
+                                          {li.text}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  );
+                                }
+                                
+                                return rendered;
                               })()}
                             </div>
                           </div>
