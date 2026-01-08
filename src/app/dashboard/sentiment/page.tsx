@@ -1550,6 +1550,23 @@ function SentimentDashboardContent() {
                         const agentResponse = positiveAgentResponse;
                         console.log('🟢 POSITIVE AGENT RESPONSE:', agentResponse);
                         
+                        // Check for error first
+                        if (agentResponse.error) {
+                          return (
+                            <div style={{ padding: 16, background: '#fef2f2', borderRadius: 8, border: '1px solid #fca5a5' }}>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: '#991b1b', marginBottom: 8 }}>
+                                Error Loading Positive Feedback
+                              </div>
+                              <div style={{ fontSize: 12, color: '#7f1d1d', marginBottom: 8 }}>
+                                {agentResponse.error}
+                              </div>
+                              <div style={{ fontSize: 11, color: '#64748b', marginTop: 8 }}>
+                                Check that NEXT_PUBLIC_POSITIVE_AGENT_ID is correct in .env.local
+                              </div>
+                            </div>
+                          );
+                        }
+                        
                         const gleanMessage = agentResponse?.messages?.find((m: any) => m.role === 'GLEAN_AI');
                         console.log('🟢 POSITIVE GLEAN MESSAGE:', gleanMessage);
                         
