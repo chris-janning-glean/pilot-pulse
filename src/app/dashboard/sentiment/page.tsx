@@ -1460,18 +1460,8 @@ function SentimentDashboardContent() {
                       // Handle JSON content
                       if (jsonData) {
                         return (
-                          <div style={{ 
-                            background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
-                            border: '1px solid #e2e8f0',
-                            borderLeft: '4px solid #818cf8',
-                            borderRadius: 16,
-                            padding: '24px 28px',
-                            marginTop: 24,
-                            marginBottom: 16,
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                          }}>
-                            <div style={{ maxWidth: '80ch' }}>
-                              {/* Render Feedback Summary Agent Response */}
+                          <div>
+                            {/* Render Feedback Summary Agent Response */}
                               {(() => {
                                 // Helper: Render a single summary object's sections
                                 const renderSections = (sections: any[], summaryIdx: number = 0) => {
@@ -1593,7 +1583,6 @@ function SentimentDashboardContent() {
                                 // Render all summaries (usually just one or two)
                                 return summaries.map((summary, idx) => renderSections(summary.sections, idx));
                               })()}
-                            </div>
                           </div>
                         );
                       }
