@@ -1,7 +1,7 @@
 {
-  "name": "pilot-pulse",
+  "name": "pilot-command",
   "version": "1.0.0",
-  "description": "Real-time insights into pilot health and user sentiment",
+  "description": "Dashboard application for monitoring Glean pilot health and user sentiment",
   "private": true,
   "scripts": {
     "dev": "next dev",

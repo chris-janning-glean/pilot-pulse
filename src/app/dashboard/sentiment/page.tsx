@@ -1113,15 +1113,12 @@ function SentimentDashboardContent() {
                                 Sentiment
                               </th>
                               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
-                                Deployment
-                              </th>
-                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
                                 User
                               </th>
                               <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#6b7280', whiteSpace: 'nowrap' }}>
                                 Issue
                               </th>
-                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#6b7280', minWidth: 250 }}>
+                              <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#6b7280', minWidth: 400 }}>
                                 Comments
                               </th>
                             </tr>
@@ -1179,22 +1176,19 @@ function SentimentDashboardContent() {
                                   )}
                                 </td>
                                 <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
-                                  {item.deployment || '-'}
-                                </td>
-                                <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
                                   {(item as any).user || '-'}
                                 </td>
                                 <td style={{ padding: '12px', verticalAlign: 'middle', whiteSpace: 'nowrap', fontSize: 13, color: '#111827' }}>
                                   {item.issueType || '-'}
                                 </td>
-                                <td style={{ padding: '12px', verticalAlign: 'middle', maxWidth: 300 }}>
+                                <td style={{ padding: '12px 16px', verticalAlign: 'top', maxWidth: 500 }}>
                                   {item.comments ? (
                                     <div style={{ 
                                       fontSize: 13, 
-                                      lineHeight: 1.5,
-                                      maxHeight: 100,
-                                      overflow: 'auto',
-                                      color: '#374151'
+                                      lineHeight: 1.6,
+                                      color: '#374151',
+                                      whiteSpace: 'normal',
+                                      wordBreak: 'break-word'
                                     }}>
                                       {item.comments}
                                     </div>
