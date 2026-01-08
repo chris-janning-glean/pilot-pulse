@@ -12,7 +12,7 @@ export function Footer() {
       borderTop: '1px solid #e5e7eb',
       background: 'white',
       borderRadius: 8,
-    }}>
+            }}>
       <p style={{ margin: 0 }}>
         © {currentYear} Pilot Command. Built for monitoring Glean pilot health.
       </p>

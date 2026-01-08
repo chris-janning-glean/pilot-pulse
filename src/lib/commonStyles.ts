@@ -87,9 +87,9 @@ export const buttonStyles: Record<string, React.CSSProperties> = {
 };
 
 export const cardStyles: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #e5e7eb',
-  borderRadius: 12,
-  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+    background: 'white',
+    border: '1px solid #e5e7eb',
+    borderRadius: 12,
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
   transition: 'box-shadow 0.2s',
 };

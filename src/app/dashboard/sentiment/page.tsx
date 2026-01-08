@@ -1548,8 +1548,14 @@ function SentimentDashboardContent() {
                     <>
                       {(() => {
                         const agentResponse = positiveAgentResponse;
+                        console.log('🟢 POSITIVE AGENT RESPONSE:', agentResponse);
+                        
                         const gleanMessage = agentResponse?.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                        console.log('🟢 POSITIVE GLEAN MESSAGE:', gleanMessage);
+                        
                         const content = gleanMessage?.content?.[0];
+                        console.log('🟢 POSITIVE CONTENT:', content);
+                        
                         let jsonData = content?.json;
                         
                         if (!jsonData && content?.text) {
@@ -1557,11 +1563,19 @@ function SentimentDashboardContent() {
                           if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
                             try {
                               jsonData = JSON.parse(trimmed);
-                            } catch (e) {}
+                              console.log('🟢 POSITIVE PARSED JSON:', jsonData);
+                            } catch (e) {
+                              console.log('🟢 POSITIVE PARSE ERROR:', e);
+                            }
                           }
                         }
                         
-                        if (!jsonData) return <div>No data available</div>;
+                        if (!jsonData) {
+                          console.log('🟢 NO JSON DATA - showing fallback');
+                          return <div>No data available</div>;
+                        }
+                        
+                        console.log('🟢 POSITIVE JSON DATA:', jsonData);
                         
                         // Extract sections and tag_cloud
                         const sections = jsonData.sections || [];
