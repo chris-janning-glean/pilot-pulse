@@ -39,8 +39,10 @@ function SentimentDashboardContent() {
     positivePages?: number;
   } | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<string>(initialCustomer);
-  const [agentResponse, setAgentResponse] = useState<any>(null);
-  const [agentLoading, setAgentLoading] = useState(false);
+  const [negativeAgentResponse, setNegativeAgentResponse] = useState<any>(null);
+  const [positiveAgentResponse, setPositiveAgentResponse] = useState<any>(null);
+  const [negativeAgentLoading, setNegativeAgentLoading] = useState(false);
+  const [positiveAgentLoading, setPositiveAgentLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [timeRange, setTimeRange] = useState<1 | 7 | 14 | 30>(7);
   const [positiveFeedback, setPositiveFeedback] = useState<any[]>([]);
@@ -228,10 +230,10 @@ function SentimentDashboardContent() {
     }
   }, [timeRange, allFeedback]);
 
-  const callGleanAgent = async (customerName: string) => {
+  const callNegativeAgent = async (customerName: string) => {
     try {
-      setAgentLoading(true);
-      console.log(`🤖 Calling Glean agent for customer: ${customerName}`);
+      setNegativeAgentLoading(true);
+      console.log(`🤖 Calling NEGATIVE feedback agent for customer: ${customerName}`);
       
       const response = await fetch('/api/glean/agent', {
         method: 'POST',
@@ -241,21 +243,54 @@ function SentimentDashboardContent() {
         body: JSON.stringify({
           agentId: '4a5c57e875fa46e38ae4be94345fc7da',
           customerName: customerName,
+          feedbackType: 'negative'
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Agent API failed: ${response.status}`);
+        throw new Error(`Negative agent API failed: ${response.status}`);
       }
 
       const data = await response.json();
-      setAgentResponse(data);
-      console.log(`✅ Agent response received:`, data);
+      setNegativeAgentResponse(data);
+      console.log(`✅ Negative agent response received:`, data);
     } catch (err) {
-      console.error('Error calling Glean agent:', err);
-      setAgentResponse({ error: err instanceof Error ? err.message : 'Failed to call agent' });
+      console.error('Error calling negative agent:', err);
+      setNegativeAgentResponse({ error: err instanceof Error ? err.message : 'Failed to call agent' });
     } finally {
-      setAgentLoading(false);
+      setNegativeAgentLoading(false);
+    }
+  };
+
+  const callPositiveAgent = async (customerName: string) => {
+    try {
+      setPositiveAgentLoading(true);
+      console.log(`🤖 Calling POSITIVE feedback agent for customer: ${customerName}`);
+      
+      const response = await fetch('/api/glean/agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agentId: '4a5c57e875fa46e38ae4be94345fc7da',
+          customerName: customerName,
+          feedbackType: 'positive'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Positive agent API failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setPositiveAgentResponse(data);
+      console.log(`✅ Positive agent response received:`, data);
+    } catch (err) {
+      console.error('Error calling positive agent:', err);
+      setPositiveAgentResponse({ error: err instanceof Error ? err.message : 'Failed to call agent' });
+    } finally {
+      setPositiveAgentLoading(false);
     }
   };
 
@@ -591,10 +626,14 @@ function SentimentDashboardContent() {
         trendData: [],
       });
       
-      // Call Glean agent in the background (non-blocking)
-      // This won't delay the page load - agent analysis loads separately
-      callGleanAgent(selectedCustomer).catch(err => {
-        console.error('Agent call failed (non-blocking):', err);
+      // Call BOTH Glean agents in the background (non-blocking)
+      // This won't delay the page load - agent analyses load separately
+      callNegativeAgent(selectedCustomer).catch(err => {
+        console.error('Negative agent call failed (non-blocking):', err);
+      });
+      
+      callPositiveAgent(selectedCustomer).catch(err => {
+        console.error('Positive agent call failed (non-blocking):', err);
       });
 
     } catch (err) {
@@ -1328,46 +1367,41 @@ function SentimentDashboardContent() {
             </Card>
           )}
 
-          {/* Sentiment Analysis */}
-          <Card style={{ marginBottom: 32 }}>
-            <CardHeader>
-              <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>
+          {/* Agent Briefing - Two Columns */}
+          <div style={{ marginBottom: 32 }}>
+            <div style={{ marginBottom: 20 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#111827', margin: 0 }}>
                 Agent Briefing
-              </CardTitle>
+              </h3>
               <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0 0' }}>
                 Analysis of customer feedback patterns
               </p>
-            </CardHeader>
-            <CardContent>
-              {agentLoading ? (
-                <div style={{ 
-                  padding: 24, 
-                  textAlign: 'center', 
-                  background: '#f8fafc',
-                  borderRadius: 16,
-                  border: '1px solid #e2e8f0',
-                  borderLeft: '4px solid #818cf8'
-                }}>
-                  <div style={{ marginBottom: 12, color: '#64748b', fontSize: 14 }}>Loading agent analysis...</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>This may take a few moments</div>
-                </div>
-              ) : agentResponse ? (
-                agentResponse.error ? (
-                  <div style={{ 
-                    padding: 20, 
-                    background: '#fef2f2', 
-                    border: '1px solid #fca5a5',
-                    borderLeft: '4px solid #ef4444',
-                    borderRadius: 16,
-                    color: '#991b1b'
-                  }}>
-                    <strong style={{ fontSize: 14 }}>Error:</strong> <span style={{ fontSize: 13 }}>{agentResponse.error}</span>
-                  </div>
-                ) : (
-                  <div>
-                    {/* Extract and display agent content from messages array */}
-                    {(() => {
-                      console.log('🔍 FULL AGENT RESPONSE:', agentResponse);
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Negative Feedback Agent */}
+              <Card>
+                <CardHeader>
+                  <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#dc2626' }}>
+                    👎 Negative Feedback
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {negativeAgentLoading ? (
+                    <div style={{ padding: 20, textAlign: 'center', color: '#64748b', fontSize: 14 }}>
+                      Loading...
+                    </div>
+                  ) : negativeAgentResponse ? (
+                    negativeAgentResponse.error ? (
+                      <div style={{ padding: 16, color: '#991b1b', fontSize: 13 }}>
+                        Error: {negativeAgentResponse.error}
+                      </div>
+                    ) : (
+                      <div>
+                        {/* Render Negative Feedback Summary */}
+                        {(() => {
+                          const agentResponse = negativeAgentResponse;
+                          console.log('🔍 NEGATIVE AGENT RESPONSE:', agentResponse);
                       
                       // Find the GLEAN_AI message
                       const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
@@ -1797,7 +1831,7 @@ function SentimentDashboardContent() {
                       <div style={{ position: 'relative', marginTop: 8 }}>
                         <button
                           onClick={() => {
-                            navigator.clipboard.writeText(JSON.stringify(agentResponse, null, 2));
+                            navigator.clipboard.writeText(JSON.stringify(negativeAgentResponse, null, 2));
                             const btn = event?.target as HTMLButtonElement;
                             const originalText = btn.textContent;
                             btn.textContent = '✓ Copied!';
@@ -1806,53 +1840,153 @@ function SentimentDashboardContent() {
                             }, 2000);
                           }}
                           style={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            padding: '6px 12px',
-                            fontSize: 12,
+                            padding: '4px 10px',
+                            fontSize: 11,
                             fontWeight: 500,
                             color: '#374151',
                             backgroundColor: '#ffffff',
                             border: '1px solid #d1d5db',
-                            borderRadius: 6,
+                            borderRadius: 4,
                             cursor: 'pointer',
-                            zIndex: 1,
                           }}
                         >
-                          Copy JSON
+                          Copy
                         </button>
                         <pre style={{ 
-                          padding: 12, 
-                          background: '#f3f4f6', 
-                          borderRadius: 6,
-                          fontSize: 11,
+                          padding: 10, 
+                          background: '#f9fafb', 
+                          borderRadius: 4,
+                          fontSize: 10,
                           overflow: 'auto',
-                          maxHeight: 400,
-                          border: '1px solid #e5e7eb'
+                          maxHeight: 300,
+                          border: '1px solid #e5e7eb',
+                          marginTop: 8
                         }}>
-                          {JSON.stringify(agentResponse, null, 2)}
+                          {JSON.stringify(negativeAgentResponse, null, 2)}
                         </pre>
                       </div>
                     </details>
                   </div>
                 )
-              ) : (
-                <div style={{ 
-                  padding: 24, 
-                  textAlign: 'center', 
-                  background: '#f8fafc',
-                  borderRadius: 16,
-                  border: '1px solid #e2e8f0',
-                  borderLeft: '4px solid #cbd5e1'
-                }}>
-                  <div style={{ color: '#64748b', fontSize: 14 }}>
-                    Agent analysis will appear here after data loads
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ) : (
+                      <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>
+                        No negative feedback analysis available
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {/* Positive Feedback Agent */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#16a34a' }}>
+                      👍 Positive Feedback
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {positiveAgentLoading ? (
+                      <div style={{ padding: 20, textAlign: 'center', color: '#64748b', fontSize: 14 }}>
+                        Loading...
+                      </div>
+                    ) : positiveAgentResponse ? (
+                      positiveAgentResponse.error ? (
+                        <div style={{ padding: 16, color: '#991b1b', fontSize: 13 }}>
+                          Error: {positiveAgentResponse.error}
+                        </div>
+                      ) : (
+                        <div>
+                          {/* Render Positive Feedback Summary */}
+                          {(() => {
+                            const agentResponse = positiveAgentResponse;
+                            // Reuse the same rendering logic
+                            const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
+                            const content = gleanMessage?.content?.[0];
+                            let jsonData = content?.json;
+                            
+                            if (!jsonData && content?.text) {
+                              const trimmed = content.text.trim();
+                              if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                                try {
+                                  jsonData = JSON.parse(trimmed);
+                                } catch (e) {
+                                  // Not valid JSON
+                                }
+                              }
+                            }
+                            
+                            if (jsonData) {
+                              // Use the same renderSections helper (defined in negative agent)
+                              const renderSections = (sections: any[]) => {
+                                if (!Array.isArray(sections) || sections.length === 0) return null;
+                                const rendered: React.ReactNode[] = [];
+                                sections.forEach((section: any, idx: number) => {
+                                  if (!section || !section.text) return;
+                                  const text = section.text;
+                                  const type = (section.type || 'paragraph').toLowerCase();
+                                  const style = (section.style || '').toLowerCase();
+                                  
+                                  if (type === 'heading') {
+                                    let level = 3;
+                                    if (style === 'h1') level = 1;
+                                    else if (style === 'h2') level = 2;
+                                    else if (style === 'h3') level = 3;
+                                    
+                                    rendered.push(
+                                      <div key={idx} style={{ 
+                                        fontSize: level === 1 ? 16 : level === 2 ? 14 : 13,
+                                        fontWeight: level === 1 ? 700 : 600,
+                                        color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#475569',
+                                        marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 20 : 14,
+                                        marginBottom: 12
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  } else if (type === 'paragraph') {
+                                    const isQuote = (text.startsWith('"') && text.endsWith('"'));
+                                    rendered.push(
+                                      <div key={idx} style={{ 
+                                        fontSize: 13,
+                                        color: '#334155',
+                                        lineHeight: 1.7,
+                                        marginBottom: 10,
+                                        paddingLeft: isQuote ? 12 : 0,
+                                        borderLeft: isQuote ? '2px solid #cbd5e1' : 'none',
+                                        fontStyle: isQuote ? 'italic' : 'normal'
+                                      }}>
+                                        {text}
+                                      </div>
+                                    );
+                                  }
+                                });
+                                return rendered;
+                              };
+                              
+                              let summaries: any[] = [];
+                              if (Array.isArray(jsonData)) {
+                                summaries = jsonData.filter(obj => obj && obj.sections);
+                              } else if (jsonData.sections) {
+                                summaries = [jsonData];
+                              }
+                              
+                              if (summaries.length > 0) {
+                                return summaries.map((summary, idx) => renderSections(summary.sections));
+                              }
+                            }
+                            
+                            return <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>No data available</div>;
+                          })()}
+                        </div>
+                      )
+                    ) : (
+                      <div style={{ padding: 16, color: '#64748b', fontSize: 13 }}>
+                        No positive feedback analysis available
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
 
           {/* API Calls - Collapsible */}
           <Card style={{ marginBottom: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
