@@ -1402,11 +1402,44 @@ function SentimentDashboardContent() {
                               {/* Render based on type, text, style structure */}
                               {(() => {
                                 console.log('📋 Rendering JSON:', jsonData);
+                                console.log('📋 JSON keys:', Object.keys(jsonData));
+                                console.log('📋 Is Array?:', Array.isArray(jsonData));
                                 
-                                // Get items array
-                                const items = Array.isArray(jsonData) ? jsonData : (jsonData.items || jsonData.content || []);
+                                // Get items array - check all possible locations
+                                let items = null;
+                                if (Array.isArray(jsonData)) {
+                                  items = jsonData;
+                                } else if (jsonData.items) {
+                                  items = jsonData.items;
+                                } else if (jsonData.content) {
+                                  items = jsonData.content;
+                                } else {
+                                  // If jsonData itself has type/text/style, wrap it
+                                  items = [jsonData];
+                                }
+                                
+                                console.log('📋 Items to render:', items);
+                                
                                 if (!Array.isArray(items) || items.length === 0) {
-                                  return <div style={{ fontSize: 14, color: '#64748b' }}>No content to display</div>;
+                                  // Fallback: show JSON structure for debugging
+                                  return (
+                                    <div>
+                                      <div style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>
+                                        Unable to parse structured content. Showing raw data:
+                                      </div>
+                                      <pre style={{ 
+                                        fontSize: 12, 
+                                        color: '#334155', 
+                                        background: 'white',
+                                        padding: 16,
+                                        borderRadius: 8,
+                                        overflow: 'auto',
+                                        maxHeight: 400
+                                      }}>
+                                        {JSON.stringify(jsonData, null, 2)}
+                                      </pre>
+                                    </div>
+                                  );
                                 }
                                 
                                 // Render each item based on type, text, style
