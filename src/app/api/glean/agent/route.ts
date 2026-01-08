@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { agentId, customerName } = body;
+    const { agentId, customerName, timeframe } = body;
     
     if (!agentId || !customerName) {
       return NextResponse.json(
@@ -23,12 +23,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Use the correct Glean Agent API format (per Glean documentation)
-    const requestBody = {
+    const requestBody: any = {
       agent_id: agentId,  // Note: underscore, not camelCase
       input: {
         Customer: customerName,  // Input is an object with Customer field
       },
     };
+    
+    // Add Timeframe if provided
+    if (timeframe) {
+      requestBody.input.Timeframe = timeframe;
+    }
     
     console.log('➡️ Calling Glean Agent:', JSON.stringify(requestBody, null, 2));
 

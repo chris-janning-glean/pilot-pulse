@@ -230,10 +230,22 @@ function SentimentDashboardContent() {
     }
   }, [timeRange, allFeedback]);
 
-  const callNegativeAgent = async (customerName: string) => {
+  // Convert time range to timeframe string
+  const getTimeframeString = (days: number): string => {
+    switch (days) {
+      case 1: return 'past_day';
+      case 7: return 'past_week';
+      case 14: return 'past_2_weeks';
+      case 30: return 'past_month';
+      default: return 'past_week';
+    }
+  };
+
+  const callNegativeAgent = async (customerName: string, timeframeDays: number) => {
     try {
       setNegativeAgentLoading(true);
-      console.log(`🤖 Calling NEGATIVE feedback agent for customer: ${customerName}`);
+      const timeframe = getTimeframeString(timeframeDays);
+      console.log(`🤖 Calling NEGATIVE feedback agent for customer: ${customerName}, timeframe: ${timeframe}`);
       
       const response = await fetch('/api/glean/agent', {
         method: 'POST',
@@ -243,7 +255,8 @@ function SentimentDashboardContent() {
         body: JSON.stringify({
           agentId: '4a5c57e875fa46e38ae4be94345fc7da',
           customerName: customerName,
-          feedbackType: 'negative'
+          feedbackType: 'negative',
+          timeframe: timeframe
         }),
       });
 
@@ -262,10 +275,11 @@ function SentimentDashboardContent() {
     }
   };
 
-  const callPositiveAgent = async (customerName: string) => {
+  const callPositiveAgent = async (customerName: string, timeframeDays: number) => {
     try {
       setPositiveAgentLoading(true);
-      console.log(`🤖 Calling POSITIVE feedback agent for customer: ${customerName}`);
+      const timeframe = getTimeframeString(timeframeDays);
+      console.log(`🤖 Calling POSITIVE feedback agent for customer: ${customerName}, timeframe: ${timeframe}`);
       
       const response = await fetch('/api/glean/agent', {
         method: 'POST',
@@ -275,7 +289,8 @@ function SentimentDashboardContent() {
         body: JSON.stringify({
           agentId: '4a5c57e875fa46e38ae4be94345fc7da',
           customerName: customerName,
-          feedbackType: 'positive'
+          feedbackType: 'positive',
+          timeframe: timeframe
         }),
       });
 
@@ -628,11 +643,11 @@ function SentimentDashboardContent() {
       
       // Call BOTH Glean agents in the background (non-blocking)
       // This won't delay the page load - agent analyses load separately
-      callNegativeAgent(selectedCustomer).catch(err => {
+      callNegativeAgent(selectedCustomer, timeRange).catch(err => {
         console.error('Negative agent call failed (non-blocking):', err);
       });
       
-      callPositiveAgent(selectedCustomer).catch(err => {
+      callPositiveAgent(selectedCustomer, timeRange).catch(err => {
         console.error('Positive agent call failed (non-blocking):', err);
       });
 
@@ -651,6 +666,20 @@ function SentimentDashboardContent() {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCustomer]);
+
+  // Re-call agents when timeRange changes
+  useEffect(() => {
+    if (selectedCustomer) {
+      callNegativeAgent(selectedCustomer, timeRange).catch(err => {
+        console.error('Negative agent call failed on timeRange change:', err);
+      });
+      
+      callPositiveAgent(selectedCustomer, timeRange).catch(err => {
+        console.error('Positive agent call failed on timeRange change:', err);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange, selectedCustomer]);
 
   // Update customer and URL - defined here so it works even during errors
   const handleCustomerChange = (customer: string) => {
