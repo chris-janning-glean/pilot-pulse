@@ -253,7 +253,7 @@ function SentimentDashboardContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          agentId: '4a5c57e875fa46e38ae4be94345fc7da',
+          agentId: process.env.NEXT_PUBLIC_NEGATIVE_AGENT_ID,
           customerName: customerName,
           feedbackType: 'negative',
           timeframe: timeframe
@@ -287,7 +287,7 @@ function SentimentDashboardContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          agentId: '4a5c57e875fa46e38ae4be94345fc7da',
+          agentId: process.env.NEXT_PUBLIC_POSITIVE_AGENT_ID,
           customerName: customerName,
           feedbackType: 'positive',
           timeframe: timeframe

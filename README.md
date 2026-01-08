@@ -38,10 +38,14 @@ npm install
 cp env.example .env.local
 ```
 
-4. Edit `.env.local` with your Glean OAuth credentials:
+4. Edit `.env.local` with your Glean OAuth credentials and Agent IDs:
 ```env
 NEXT_PUBLIC_GLEAN_API_ENDPOINT=https://your-instance-be.glean.com
 NEXT_PUBLIC_GLEAN_OAUTH_TOKEN=your_oauth_access_token_here
+
+# Agent IDs for feedback analysis
+NEXT_PUBLIC_NEGATIVE_AGENT_ID=4a5c57e875fa46e38ae4be94345fc7da
+NEXT_PUBLIC_POSITIVE_AGENT_ID=your_positive_agent_id_here
 ```
 
 See [OAUTH_SETUP.md](OAUTH_SETUP.md) for detailed OAuth configuration instructions.
