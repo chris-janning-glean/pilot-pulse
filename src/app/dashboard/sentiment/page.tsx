@@ -1332,10 +1332,10 @@ function SentimentDashboardContent() {
           <Card style={{ marginBottom: 32 }}>
             <CardHeader>
               <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>
-                🤖 Agent Briefing
+                Agent Briefing
               </CardTitle>
               <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0 0' }}>
-                AI-powered analysis of customer feedback patterns
+                Analysis of customer feedback patterns
               </p>
             </CardHeader>
             <CardContent>
@@ -1506,8 +1506,8 @@ function SentimentDashboardContent() {
                                     const level = type.includes('1') || type === 'h1' ? 1 : type.includes('2') || type === 'h2' ? 2 : 3;
                                     rendered.push(
                                       <div key={idx} style={{ 
-                                        fontSize: level === 1 ? 20 : level === 2 ? 16 : 14,
-                                        fontWeight: 600,
+                                        fontSize: level === 1 ? 22 : level === 2 ? 16 : 14,
+                                        fontWeight: level === 1 ? 700 : 600,
                                         color: level === 1 ? '#0f172a' : level === 2 ? '#3b82f6' : '#0f172a',
                                         marginTop: level === 1 && idx > 0 ? 28 : level === 2 ? 24 : 20,
                                         marginBottom: 12,
