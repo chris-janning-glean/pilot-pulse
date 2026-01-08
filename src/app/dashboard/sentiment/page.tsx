@@ -1371,6 +1371,145 @@ function SentimentDashboardContent() {
                       const gleanMessage = agentResponse.messages?.find((m: any) => m.role === 'GLEAN_AI');
                       const content = gleanMessage?.content?.[0];
                       
+                      // Try to detect and parse JSON
+                      let jsonData = content?.json;
+                      if (!jsonData && content?.text) {
+                        const trimmed = content.text.trim();
+                        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                          try {
+                            jsonData = JSON.parse(trimmed);
+                            console.log('📊 Parsed JSON from text:', jsonData);
+                          } catch (e) {
+                            // Not valid JSON, will handle as text
+                          }
+                        }
+                      }
+                      
+                      // Handle JSON content
+                      if (jsonData) {
+                        return (
+                          <div style={{ 
+                            background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
+                            border: '1px solid #e2e8f0',
+                            borderLeft: '4px solid #818cf8',
+                            borderRadius: 16,
+                            padding: '24px 28px',
+                            marginTop: 24,
+                            marginBottom: 16,
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                          }}>
+                            <div style={{ maxWidth: '80ch' }}>
+                              {/* Render JSON as structured content */}
+                              {jsonData.summary && (
+                                <div style={{ marginBottom: 24 }}>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12 
+                                  }}>
+                                    Summary
+                                  </h3>
+                                  <p style={{ 
+                                    fontSize: 14, 
+                                    color: '#334155', 
+                                    lineHeight: 1.7,
+                                    marginBottom: 0
+                                  }}>
+                                    {jsonData.summary}
+                                  </p>
+                                </div>
+                              )}
+                              
+                              {jsonData.issues && Array.isArray(jsonData.issues) && jsonData.issues.length > 0 && (
+                                <div style={{ marginBottom: 24 }}>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12,
+                                    paddingTop: 24,
+                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
+                                  }}>
+                                    Key Issues
+                                  </h3>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                    {jsonData.issues.map((issue: any, idx: number) => (
+                                      <div key={idx} style={{ 
+                                        padding: 16,
+                                        background: 'white',
+                                        border: '1px solid #e2e8f0',
+                                        borderRadius: 8
+                                      }}>
+                                        {issue.type && (
+                                          <div style={{ 
+                                            fontSize: 14, 
+                                            fontWeight: 600, 
+                                            color: '#0f172a',
+                                            marginBottom: 8
+                                          }}>
+                                            {issue.type}
+                                          </div>
+                                        )}
+                                        {issue.description && (
+                                          <div style={{ 
+                                            fontSize: 13, 
+                                            color: '#64748b',
+                                            lineHeight: 1.6,
+                                            marginBottom: issue.examples ? 8 : 0
+                                          }}>
+                                            {issue.description}
+                                          </div>
+                                        )}
+                                        {issue.examples && Array.isArray(issue.examples) && issue.examples.length > 0 && (
+                                          <div style={{ marginTop: 8 }}>
+                                            <div style={{ fontSize: 12, fontWeight: 500, color: '#64748b', marginBottom: 6 }}>
+                                              Examples:
+                                            </div>
+                                            <ul style={{ margin: 0, paddingLeft: 20, color: '#475569', fontSize: 12, lineHeight: 1.6 }}>
+                                              {issue.examples.map((example: string, i: number) => (
+                                                <li key={i} style={{ marginBottom: 4 }}>{example}</li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {jsonData.recommendations && Array.isArray(jsonData.recommendations) && jsonData.recommendations.length > 0 && (
+                                <div>
+                                  <h3 style={{ 
+                                    fontSize: 16, 
+                                    fontWeight: 600, 
+                                    color: '#0f172a', 
+                                    marginBottom: 12,
+                                    paddingTop: 24,
+                                    borderTop: '1px solid rgba(226, 232, 240, 0.7)'
+                                  }}>
+                                    Recommendations
+                                  </h3>
+                                  <ul style={{ 
+                                    margin: 0, 
+                                    paddingLeft: 24, 
+                                    color: '#334155', 
+                                    fontSize: 14,
+                                    lineHeight: 1.7,
+                                    listStyleType: 'disc'
+                                  }}>
+                                    {jsonData.recommendations.map((rec: string, idx: number) => (
+                                      <li key={idx} style={{ marginBottom: 10 }}>{rec}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                      
                       // Handle text content (markdown/plain text)
                       if (content?.text) {
                         const textContent = content.text;
