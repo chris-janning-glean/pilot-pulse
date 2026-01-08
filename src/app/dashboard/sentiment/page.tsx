@@ -655,6 +655,9 @@ function SentimentDashboardContent() {
               <option value="whirlpool">Whirlpool</option>
               <option value="generalmotors">General Motors</option>
               <option value="tailoredbrands">Tailored Brands</option>
+              <option value="insurity">Insurity</option>
+              <option value="1password">1Password</option>
+              <option value="nubank">Nubank</option>
             </select>
           </div>
         </div>
@@ -735,6 +738,9 @@ function SentimentDashboardContent() {
             <option value="whirlpool">Whirlpool</option>
             <option value="generalmotors">General Motors</option>
             <option value="tailoredbrands">Tailored Brands</option>
+            <option value="insurity">Insurity</option>
+            <option value="1password">1Password</option>
+            <option value="nubank">Nubank</option>
           </select>
 
           {/* Date Range Toggles */}
