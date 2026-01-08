@@ -1329,30 +1329,37 @@ function SentimentDashboardContent() {
           {/* Sentiment Analysis */}
           <Card style={{ marginBottom: 32 }}>
             <CardHeader>
-              <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>Sentiment Analysis</CardTitle>
+              <CardTitle style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>
+                🤖 Agent Briefing
+              </CardTitle>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '4px 0 0 0' }}>
+                AI-powered analysis of customer feedback patterns
+              </p>
             </CardHeader>
             <CardContent>
               {agentLoading ? (
                 <div style={{ 
-                  padding: 20, 
+                  padding: 24, 
                   textAlign: 'center', 
-                  background: '#0f172a',
-                  borderRadius: 8,
-                  border: '1px solid #1e293b'
+                  background: '#f8fafc',
+                  borderRadius: 16,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '4px solid #818cf8'
                 }}>
-                  <div style={{ marginBottom: 12, color: '#94a3b8', fontSize: 13 }}>Loading agent response...</div>
-                  <div style={{ fontSize: 11, color: '#64748b', fontFamily: 'monospace' }}>Agent ID: 4a5c57e875fa46e38ae4be94345fc7da</div>
+                  <div style={{ marginBottom: 12, color: '#64748b', fontSize: 14 }}>Loading agent analysis...</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>This may take a few moments</div>
                 </div>
               ) : agentResponse ? (
                 agentResponse.error ? (
                   <div style={{ 
-                    padding: 16, 
+                    padding: 20, 
                     background: '#fef2f2', 
                     border: '1px solid #fca5a5',
-                    borderRadius: 8,
-                    color: '#b91c1c'
+                    borderLeft: '4px solid #ef4444',
+                    borderRadius: 16,
+                    color: '#991b1b'
                   }}>
-                    <strong>Error:</strong> {agentResponse.error}
+                    <strong style={{ fontSize: 14 }}>Error:</strong> <span style={{ fontSize: 13 }}>{agentResponse.error}</span>
                   </div>
                 ) : (
                   <div>
@@ -1365,22 +1372,85 @@ function SentimentDashboardContent() {
                       if (textContent) {
                         return (
                           <div style={{ 
-                            padding: 20, 
-                            background: '#0f172a',
-                            border: '1px solid #1e293b',
-                            borderRadius: 8,
+                            background: 'linear-gradient(to bottom right, #f8fafc, #eef2ff)',
+                            border: '1px solid #e2e8f0',
+                            borderLeft: '4px solid #818cf8',
+                            borderRadius: 16,
+                            padding: '24px 28px',
+                            marginTop: 24,
                             marginBottom: 16,
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                           }}>
-                            <div style={{ 
-                              fontSize: 13, 
-                              color: '#e2e8f0',
-                              lineHeight: 1.7,
-                              whiteSpace: 'pre-wrap',
-                              letterSpacing: '0.01em'
-                            }}>
-                              {textContent}
+                            <div style={{ maxWidth: '80ch' }}>
+                              <div style={{ 
+                                fontSize: 15, 
+                                color: '#1e293b',
+                                lineHeight: 1.75,
+                                whiteSpace: 'pre-wrap',
+                                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                              }}>
+                                {textContent.split('\n').map((line: string, idx: number) => {
+                                  // Style headings (lines starting with ###)
+                                  if (line.trim().startsWith('###')) {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: 14,
+                                        fontWeight: 600,
+                                        color: '#0f172a',
+                                        marginTop: idx > 0 ? 20 : 0,
+                                        marginBottom: 8,
+                                        paddingTop: idx > 0 ? 20 : 0,
+                                        borderTop: idx > 0 ? '1px solid rgba(226, 232, 240, 0.7)' : 'none'
+                                      }}>
+                                        {line.replace(/^###\s*/, '')}
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  // Style subheadings (lines starting with ####)
+                                  if (line.trim().startsWith('####')) {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        fontSize: 13,
+                                        fontWeight: 600,
+                                        color: '#0f172a',
+                                        marginTop: 16,
+                                        marginBottom: 8
+                                      }}>
+                                        {line.replace(/^####\s*/, '')}
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  // Style bullet points
+                                  if (line.trim().startsWith('-')) {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        paddingLeft: 20,
+                                        marginBottom: 8,
+                                        color: '#334155'
+                                      }}>
+                                        {line}
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  // Regular text
+                                  if (line.trim()) {
+                                    return (
+                                      <div key={idx} style={{ 
+                                        marginBottom: 8,
+                                        color: '#1e293b'
+                                      }}>
+                                        {line}
+                                      </div>
+                                    );
+                                  }
+                                  
+                                  // Empty line
+                                  return <div key={idx} style={{ height: 8 }} />;
+                                })}
+                              </div>
                             </div>
                           </div>
                         );
@@ -1450,14 +1520,15 @@ function SentimentDashboardContent() {
                 )
               ) : (
                 <div style={{ 
-                  padding: 20, 
+                  padding: 24, 
                   textAlign: 'center', 
-                  background: '#0f172a',
-                  borderRadius: 8,
-                  border: '1px solid #1e293b'
+                  background: '#f8fafc',
+                  borderRadius: 16,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '4px solid #cbd5e1'
                 }}>
-                  <div style={{ color: '#94a3b8', fontSize: 13 }}>
-                    No agent response yet. Data will load when you select a customer.
+                  <div style={{ color: '#64748b', fontSize: 14 }}>
+                    Agent analysis will appear here after data loads
                   </div>
                 </div>
               )}
