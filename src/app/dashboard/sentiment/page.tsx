@@ -1414,15 +1414,28 @@ function SentimentDashboardContent() {
                                 console.log('📋 JSON keys:', Object.keys(jsonData));
                                 console.log('📋 Is Array?:', Array.isArray(jsonData));
                                 
-                                // Get items array - check all possible locations
-                                let items = null;
+                                // Get items array - check all possible locations including nested sections
+                                let items = [];
                                 if (Array.isArray(jsonData)) {
-                                  items = jsonData;
+                                  // Check if array items have sections property
+                                  jsonData.forEach(obj => {
+                                    if (obj.sections && Array.isArray(obj.sections)) {
+                                      items.push(...obj.sections);
+                                    } else if (obj.type && obj.text) {
+                                      items.push(obj);
+                                    }
+                                  });
+                                  // If no sections found, use the array itself
+                                  if (items.length === 0) {
+                                    items = jsonData;
+                                  }
+                                } else if (jsonData.sections && Array.isArray(jsonData.sections)) {
+                                  items = jsonData.sections;
                                 } else if (jsonData.items) {
                                   items = jsonData.items;
                                 } else if (jsonData.content) {
                                   items = jsonData.content;
-                                } else {
+                                } else if (jsonData.type && jsonData.text) {
                                   // If jsonData itself has type/text/style, wrap it
                                   items = [jsonData];
                                 }
