@@ -687,50 +687,6 @@ function SentimentDashboardContent() {
     router.push(`/dashboard/sentiment?customer=${customer}`);
   };
 
-  // Check if customer is in URL
-  if (!selectedCustomer) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: 400,
-        flexDirection: 'column',
-        gap: 16
-      }}>
-        <div style={{ 
-          padding: 32,
-          background: '#fffbeb',
-          border: '1px solid #fbbf24',
-          borderRadius: 12,
-          maxWidth: 500,
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#92400e', marginBottom: 12 }}>
-            No Customer Selected
-          </div>
-          <div style={{ fontSize: 14, color: '#78350f', lineHeight: 1.6 }}>
-            Please add a customer parameter to the URL to view the dashboard.
-          </div>
-          <div style={{ 
-            fontSize: 13, 
-            color: '#78350f', 
-            marginTop: 16,
-            padding: 12,
-            background: '#fef3c7',
-            borderRadius: 6,
-            fontFamily: 'monospace'
-          }}>
-            Example: /sentiment?customer=whirlpool
-          </div>
-          <div style={{ fontSize: 12, color: '#92400e', marginTop: 12 }}>
-            Available customers: whirlpool, generalmotors, tailoredbrands, insurity
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
@@ -752,7 +708,7 @@ function SentimentDashboardContent() {
         }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
-              User Sentiment - {selectedCustomer.charAt(0).toUpperCase() + selectedCustomer.slice(1)}
+              User Sentiment ({selectedCustomer})
             </h2>
             <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
               Track user satisfaction and feedback in real time
@@ -806,7 +762,7 @@ function SentimentDashboardContent() {
       }}>
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
-            {selectedCustomer.charAt(0).toUpperCase() + selectedCustomer.slice(1).replace(/([A-Z])/g, ' $1')} - User Sentiment
+            User Sentiment ({selectedCustomer})
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
             Track user satisfaction and feedback in real time
