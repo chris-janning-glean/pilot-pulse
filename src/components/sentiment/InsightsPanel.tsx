@@ -9,6 +9,8 @@ interface InsightsPanelProps {
   negativeAgentLoading: boolean;
   positiveAgentLoading: boolean;
   allFeedback: any[];
+  onFilterUser?: (email: string) => void;
+  onFilterExample?: (filters: { sentiment?: string; issueType?: string; user?: string }) => void;
 }
 
 export function InsightsPanel({
@@ -19,6 +21,8 @@ export function InsightsPanel({
   negativeAgentLoading,
   positiveAgentLoading,
   allFeedback,
+  onFilterUser,
+  onFilterExample,
 }: InsightsPanelProps) {
   const tabs = [
     { id: 'summary' as const, label: 'Summary' },
@@ -68,9 +72,9 @@ export function InsightsPanel({
             />
           )}
 
-          {activeTab === 'users' && <TopUsersTab allFeedback={allFeedback} />}
+          {activeTab === 'users' && <TopUsersTab allFeedback={allFeedback} onFilterUser={onFilterUser} />}
 
-          {activeTab === 'examples' && <ExamplesTab allFeedback={allFeedback} />}
+          {activeTab === 'examples' && <ExamplesTab allFeedback={allFeedback} onFilterExample={onFilterExample} />}
         </CardContent>
       </Card>
     </div>
@@ -195,7 +199,7 @@ function SummaryTab({
 }
 
 // Top Users Tab - Leaderboards
-function TopUsersTab({ allFeedback }: { allFeedback: any[] }) {
+function TopUsersTab({ allFeedback, onFilterUser }: { allFeedback: any[]; onFilterUser?: (email: string) => void }) {
   // Calculate top raters
   const userStats = new Map<string, { total: number; positive: number; negative: number; lastDate: string }>();
 
@@ -241,19 +245,28 @@ function TopUsersTab({ allFeedback }: { allFeedback: any[] }) {
         {topRaters.map((user, idx) => (
           <div
             key={idx}
+            onClick={() => onFilterUser && onFilterUser(user.email)}
             style={{
               padding: '10px 12px',
               background: 'white',
               borderRadius: 6,
               marginBottom: 8,
               border: '1px solid #e2e8f0',
+              cursor: onFilterUser ? 'pointer' : 'default',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              if (onFilterUser) e.currentTarget.style.background = '#f8fafc';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 12, color: '#334155', fontFamily: 'monospace', flex: 1 }}>
+              <div style={{ fontSize: 13, color: '#334155', fontFamily: 'monospace', flex: 1 }}>
                 {user.email}
               </div>
-              <div style={{ fontSize: 11, color: '#64748b', marginLeft: 8 }}>
+              <div style={{ fontSize: 12, color: '#64748b', marginLeft: 8 }}>
                 {user.total} • {user.positiveRate}% 👍
               </div>
             </div>
@@ -270,24 +283,33 @@ function TopUsersTab({ allFeedback }: { allFeedback: any[] }) {
           atRiskUsers.map((user, idx) => (
             <div
               key={idx}
+              onClick={() => onFilterUser && onFilterUser(user.email)}
               style={{
                 padding: '10px 12px',
                 background: '#fffbeb',
                 borderRadius: 6,
                 marginBottom: 8,
                 border: '1px solid #fbbf24',
+                cursor: onFilterUser ? 'pointer' : 'default',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                if (onFilterUser) e.currentTarget.style.background = '#fef3c7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fffbeb';
               }}
             >
-              <div style={{ fontSize: 12, color: '#334155', fontFamily: 'monospace', marginBottom: 4 }}>
+              <div style={{ fontSize: 13, color: '#334155', fontFamily: 'monospace', marginBottom: 4 }}>
                 {user.email}
               </div>
-              <div style={{ fontSize: 11, color: '#92400e' }}>
+              <div style={{ fontSize: 12, color: '#92400e' }}>
                 {user.negativeCount} 👎 ({user.negativeRate}% negative)
               </div>
             </div>
           ))
         ) : (
-          <div style={{ fontSize: 12, color: '#94a3b8' }}>No users with 3+ feedback</div>
+          <div style={{ fontSize: 13, color: '#94a3b8' }}>No users with 3+ feedback</div>
         )}
       </div>
     </div>
@@ -295,7 +317,7 @@ function TopUsersTab({ allFeedback }: { allFeedback: any[] }) {
 }
 
 // Examples Tab - Representative Comments
-function ExamplesTab({ allFeedback }: { allFeedback: any[] }) {
+function ExamplesTab({ allFeedback, onFilterExample }: { allFeedback: any[]; onFilterExample?: (filters: any) => void }) {
   // Get most common issue type
   const issueTypeCounts = new Map<string, number>();
   allFeedback.forEach((f) => {
@@ -327,26 +349,52 @@ function ExamplesTab({ allFeedback }: { allFeedback: any[] }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {examples.map((ex, idx) => (
         <div key={idx}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 6 }}>
             {ex.label}
           </div>
           <div
+            onClick={() => {
+              if (onFilterExample) {
+                onFilterExample({
+                  sentiment: ex.feedback.sentiment,
+                  issueType: ex.feedback.issueType,
+                  user: ex.feedback.user,
+                });
+              }
+            }}
             style={{
-              padding: 12,
+              padding: 14,
               background: 'white',
               borderRadius: 6,
               border: '1px solid #e2e8f0',
               borderLeft: '3px solid #cbd5e1',
-              fontSize: 13,
+              fontSize: 14,
               color: '#334155',
-              lineHeight: 1.6,
+              lineHeight: 1.7,
               fontStyle: 'italic',
+              cursor: onFilterExample ? 'pointer' : 'default',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              if (onFilterExample) {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.borderLeftColor = '#6366f1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.borderLeftColor = '#cbd5e1';
             }}
           >
             &ldquo;{ex.feedback.comments}&rdquo;
           </div>
-          <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6 }}>
             {ex.feedback.user} • {ex.feedback.date}
+            {onFilterExample && (
+              <span style={{ marginLeft: 8, color: '#6366f1', fontSize: 11 }}>
+                (click to filter)
+              </span>
+            )}
           </div>
         </div>
       ))}

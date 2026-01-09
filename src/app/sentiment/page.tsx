@@ -984,6 +984,18 @@ function SentimentDashboardContent() {
               negativeAgentLoading={negativeAgentLoading}
               positiveAgentLoading={positiveAgentLoading}
               allFeedback={allFeedback}
+              onFilterUser={(email) => {
+                // Filter table to this user
+                setSearchFilter(email);
+                setSentimentFilter('all');
+                setIssueTypeFilter('all');
+              }}
+              onFilterExample={(filters) => {
+                // Apply filters from example
+                if (filters.user) setSearchFilter(filters.user);
+                if (filters.sentiment) setSentimentFilter(filters.sentiment as any);
+                if (filters.issueType) setIssueTypeFilter(filters.issueType);
+              }}
             />
           </div>
 
