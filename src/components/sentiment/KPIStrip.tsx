@@ -99,6 +99,7 @@ export function KPIStrip({
   const kpis = [
     {
       icon: MessageSquare,
+      iconColor: '#6366f1',
       label: 'Total Feedback',
       value: metrics.totalFeedback.toLocaleString(),
       subtext: 'in selected period',
@@ -107,6 +108,7 @@ export function KPIStrip({
     },
     {
       icon: ThumbsUp,
+      iconColor: '#14b8a6',
       label: '% Positive',
       value: `${Math.round(metrics.positiveRate)}%`,
       subtext: 'satisfaction rate',
@@ -116,6 +118,7 @@ export function KPIStrip({
     },
     {
       icon: TrendingUp,
+      iconColor: '#8b5cf6',
       label: 'Trend vs Prior',
       value: metrics.positiveRateDelta !== undefined
         ? `${metrics.positiveRateDelta > 0 ? '+' : ''}${metrics.positiveRateDelta.toFixed(1)}pp`
@@ -127,6 +130,7 @@ export function KPIStrip({
     },
     {
       icon: Users,
+      iconColor: '#06b6d4',
       label: 'Unique Raters',
       value: (metrics.uniqueRaters || 0) > 0 ? (metrics.uniqueRaters || 0).toLocaleString() : '—',
       subtext: (metrics.uniqueRaters || 0) > 0 ? 'distinct users' : 'insufficient data',
@@ -135,6 +139,7 @@ export function KPIStrip({
     },
     {
       icon: Repeat,
+      iconColor: '#f59e0b',
       label: 'Repeat Raters',
       value: (metrics.repeatRaters || 0) > 0 ? (metrics.repeatRaters || 0).toLocaleString() : '—',
       subtext: (metrics.repeatRaters || 0) > 0 ? 'users with 2+ feedback' : 'insufficient data',
@@ -143,70 +148,77 @@ export function KPIStrip({
     },
     {
       icon: Trophy,
+      iconColor: '#eab308',
       label: 'Most Active Rater',
       value: mostActiveRater ? (
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0 }} title={mostActiveRater.email}>
-          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0, cursor: 'help' }} title={`Full email: ${mostActiveRater.email}`}>
+          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 20 }}>
             {abbreviateEmail(mostActiveRater.email).username}
           </span>
-          <span style={{ fontSize: 16, color: '#94a3b8' }}>
+          <span style={{ fontSize: 14, color: '#94a3b8' }}>
             {abbreviateEmail(mostActiveRater.email).domain}
           </span>
         </div>
       ) : '—',
       subtext: mostActiveRater ? `${mostActiveRater.count} ratings` : 'no data',
       onClick: mostActiveRater && onFilterUser ? () => onFilterUser(mostActiveRater.email) : undefined,
-      tooltip: mostActiveRater ? mostActiveRater.email : 'No user data',
+      isEmail: true,
     },
     {
       icon: Smile,
+      iconColor: '#10b981',
       label: 'Most Positive User',
       value: mostPositiveUser ? (
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0 }} title={mostPositiveUser.email}>
-          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0, cursor: 'help' }} title={`Full email: ${mostPositiveUser.email}`}>
+          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 20 }}>
             {abbreviateEmail(mostPositiveUser.email).username}
           </span>
-          <span style={{ fontSize: 16, color: '#94a3b8' }}>
+          <span style={{ fontSize: 14, color: '#94a3b8' }}>
             {abbreviateEmail(mostPositiveUser.email).domain}
           </span>
         </div>
       ) : '—',
       subtext: mostPositiveUser ? `${mostPositiveUser.count} • ${mostPositiveUser.rate}% positive` : 'no data',
       onClick: mostPositiveUser && onFilterUser ? () => onFilterUser(mostPositiveUser.email) : undefined,
-      tooltip: mostPositiveUser ? mostPositiveUser.email : 'No user data',
+      isEmail: true,
     },
     {
       icon: AlertTriangle,
+      iconColor: '#f97316',
       label: 'Most Negative User',
       value: mostNegativeUser ? (
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0 }} title={mostNegativeUser.email}>
-          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, minWidth: 0, cursor: 'help' }} title={`Full email: ${mostNegativeUser.email}`}>
+          <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 20 }}>
             {abbreviateEmail(mostNegativeUser.email).username}
           </span>
-          <span style={{ fontSize: 16, color: '#94a3b8' }}>
+          <span style={{ fontSize: 14, color: '#94a3b8' }}>
             {abbreviateEmail(mostNegativeUser.email).domain}
           </span>
         </div>
       ) : '—',
       subtext: mostNegativeUser ? `${mostNegativeUser.count} • ${mostNegativeUser.rate}% negative` : 'no data',
       onClick: mostNegativeUser && onFilterUser ? () => onFilterUser(mostNegativeUser.email) : undefined,
-      tooltip: mostNegativeUser ? mostNegativeUser.email : 'No user data',
+      isEmail: true,
     },
     {
       icon: Sparkles,
+      iconColor: '#14b8a6',
       label: 'Top Positive Term',
       value: topPositiveTerm ? topPositiveTerm.phrase : '—',
       subtext: topPositiveTerm ? `n=${topPositiveTerm.frequency} mentions` : 'no data',
       onClick: topPositiveTerm && onFilterPhrase ? () => onFilterPhrase(topPositiveTerm.phrase, 'positive') : undefined,
       tooltip: topPositiveTerm ? `"${topPositiveTerm.phrase}" appears ${topPositiveTerm.frequency} times` : 'No tag data',
+      smallValue: true,
     },
     {
       icon: Flag,
+      iconColor: '#f59e0b',
       label: 'Top Negative Term',
       value: topNegativeTerm ? topNegativeTerm.phrase : '—',
       subtext: topNegativeTerm ? `n=${topNegativeTerm.frequency} mentions` : 'no data',
       onClick: topNegativeTerm && onFilterPhrase ? () => onFilterPhrase(topNegativeTerm.phrase, 'negative') : undefined,
       tooltip: topNegativeTerm ? `"${topNegativeTerm.phrase}" appears ${topNegativeTerm.frequency} times` : 'No tag data',
+      smallValue: true,
     },
   ];
 
@@ -223,6 +235,7 @@ export function KPIStrip({
           <div
             key={idx}
             onClick={kpi.onClick}
+            title={kpi.isEmail ? undefined : kpi.tooltip}
             style={{ cursor: kpi.onClick ? 'pointer' : 'default' }}
             onMouseEnter={(e) => {
               if (kpi.onClick && e.currentTarget.firstElementChild) {
@@ -259,7 +272,7 @@ export function KPIStrip({
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
-                <Icon size={20} color="#64748b" />
+                <Icon size={20} color={kpi.iconColor || '#64748b'} />
               </div>
 
               {/* Label */}
@@ -270,10 +283,10 @@ export function KPIStrip({
               {/* Value + Delta */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                 <div style={{ 
-                  fontSize: typeof kpi.value === 'string' ? 28 : 24, 
+                  fontSize: kpi.smallValue ? 18 : (typeof kpi.value === 'string' && !kpi.isEmail ? 28 : 24), 
                   fontWeight: 600, 
                   color: '#0f172a',
-                  lineHeight: 1,
+                  lineHeight: 1.2,
                   fontVariantNumeric: 'tabular-nums',
                   minWidth: 0,
                   flex: typeof kpi.value === 'string' ? '0 1 auto' : '1',
