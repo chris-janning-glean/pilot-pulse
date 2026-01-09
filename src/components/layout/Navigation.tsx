@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 const tabs = [
   { name: 'Sentiment', href: '/sentiment' },
@@ -11,6 +11,13 @@ const tabs = [
 
 export function Navigation() {
   const pathname = usePathname();
+  let customer: string | null = null;
+  
+  // Try to get customer from URL (client-side only)
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    customer = params.get('customer');
+  }
 
   const isActive = (href: string) => {
     // Handle sentiment as the default (root also redirects there)
@@ -20,6 +27,14 @@ export function Navigation() {
     return pathname.startsWith(href);
   };
 
+  // Build URL with customer parameter preserved
+  const buildHref = (baseHref: string) => {
+    if (customer) {
+      return `${baseHref}?customer=${customer}`;
+    }
+    return baseHref;
+  };
+
   return (
     <nav style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       {tabs.map((tab) => {
@@ -27,7 +42,7 @@ export function Navigation() {
         return (
           <Link
             key={tab.href}
-            href={tab.href}
+            href={buildHref(tab.href)}
             style={{
               fontSize: 14,
               fontWeight: 600,

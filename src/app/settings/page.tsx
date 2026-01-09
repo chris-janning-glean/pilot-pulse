@@ -1,14 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Settings } from 'lucide-react';
 import { buttonStyles } from '@/lib/commonStyles';
 
-export default function SettingsPage() {
+function SettingsPageContent() {
+  const searchParams = useSearchParams();
+  const customer = searchParams.get('customer') || 'whirlpool';
+  
   const [testingApi, setTestingApi] = useState(false);
   const [apiTestResults, setApiTestResults] = useState<any>(null);
-  const [testCustomer, setTestCustomer] = useState('whirlpool');
 
   const testApiConnection = async () => {
     setTestingApi(true);
@@ -20,7 +23,7 @@ export default function SettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: `glean-${testCustomer}`,
+          query: `glean-${customer}`,
           pageSize: 10,
           requestOptions: {
             datasourcesFilter: ['jira'],
@@ -42,7 +45,7 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           agentId: process.env.NEXT_PUBLIC_NEGATIVE_AGENT_ID,
-          customerName: testCustomer,
+          customerName: customer,
           timeframe: 'past_week'
         })
       });
@@ -75,10 +78,10 @@ export default function SettingsPage() {
     <div>
       <div style={{ marginBottom: 32 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
-          Settings
+          Settings ({customer})
         </h2>
         <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
-          Configure API connections and dashboard preferences
+          Configure API connections and test endpoints
         </p>
       </div>
 
@@ -162,27 +165,12 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 8 }}>
-              Test Customer:
-            </label>
-            <select
-              value={testCustomer}
-              onChange={(e) => setTestCustomer(e.target.value)}
-              style={{
-                padding: '8px 12px',
-                fontSize: 13,
-                border: '1px solid #d1d5db',
-                borderRadius: 6,
-                background: 'white',
-                color: '#111827'
-              }}
-            >
-              <option value="whirlpool">Whirlpool</option>
-              <option value="generalmotors">General Motors</option>
-              <option value="tailoredbrands">Tailored Brands</option>
-              <option value="insurity">Insurity</option>
-            </select>
+          <div style={{ marginBottom: 16, padding: 12, background: '#f9fafb', borderRadius: 6, border: '1px solid #e5e7eb' }}>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Testing Customer:</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{customer}</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4 }}>
+              Change customer via URL: /settings?customer=whirlpool
+            </div>
           </div>
 
           <button
@@ -291,3 +279,15 @@ export default function SettingsPage() {
   );
 }
 
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ padding: 32, textAlign: 'center', color: '#64748b' }}>
+        Loading settings...
+      </div>
+    }>
+      <SettingsPageContent />
+    </Suspense>
+  );
+}
