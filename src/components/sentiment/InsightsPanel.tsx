@@ -89,7 +89,10 @@ function SummaryTab({
   negativeAgentLoading: boolean;
   positiveAgentLoading: boolean;
 }) {
-  const renderAgentSections = (agentResponse: any, loading: boolean, title: string) => {
+  const [expandedNegative, setExpandedNegative] = React.useState(false);
+  const [expandedPositive, setExpandedPositive] = React.useState(false);
+
+  const renderAgentSections = (agentResponse: any, loading: boolean, title: string, expanded: boolean, setExpanded: (val: boolean) => void) => {
     if (loading) {
       return <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#64748b' }}>Loading...</div>;
     }
@@ -116,48 +119,77 @@ function SummaryTab({
     if (!jsonData) return <div style={{ fontSize: 12, color: '#64748b' }}>No data</div>;
 
     const sections = jsonData.sections || [];
+    
+    // Extract TL;DR bullets (first 5 paragraphs or h2 sections)
+    const tldrItems = sections
+      .filter((s: any) => s.type === 'paragraph' || (s.type === 'heading' && s.style === 'h2'))
+      .slice(0, 5);
+    
+    const displaySections = expanded ? sections : tldrItems;
 
     return (
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20, maxWidth: '80ch' }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#475569', marginBottom: 8 }}>{title}</div>
-        {sections.slice(0, 5).map((section: any, idx: number) => {
-          if (!section || !section.text) return null;
+        
+        {/* TL;DR Bullets */}
+        <div style={{ marginBottom: 12 }}>
+          {displaySections.map((section: any, idx: number) => {
+            if (!section || !section.text) return null;
 
-          const type = section.type || 'paragraph';
-          const style = section.style || '';
+            const type = section.type || 'paragraph';
+            const style = section.style || '';
 
-          if (type === 'heading') {
-            const level = style === 'h1' ? 1 : style === 'h2' ? 2 : 3;
+            if (type === 'heading') {
+              const level = style === 'h1' ? 1 : style === 'h2' ? 2 : 3;
+              return (
+                <div
+                  key={idx}
+                  style={{
+                    fontSize: level === 1 ? 15 : level === 2 ? 14 : 13,
+                    fontWeight: 600,
+                    color: level === 1 ? '#0f172a' : '#475569',
+                    marginTop: level === 1 ? 16 : 12,
+                    marginBottom: 6,
+                  }}
+                >
+                  {section.text}
+                </div>
+              );
+            }
+
             return (
-              <div
-                key={idx}
-                style={{
-                  fontSize: level === 1 ? 14 : level === 2 ? 13 : 12,
-                  fontWeight: 600,
-                  color: level === 1 ? '#0f172a' : '#475569',
-                  marginTop: level === 1 ? 16 : 12,
-                  marginBottom: 6,
-                }}
-              >
+              <div key={idx} style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7, marginBottom: 10 }}>
                 {section.text}
               </div>
             );
-          }
-
-          return (
-            <div key={idx} style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 8 }}>
-              {section.text}
-            </div>
-          );
-        })}
+          })}
+        </div>
+        
+        {/* Show More / Show Less */}
+        {sections.length > 5 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            style={{
+              fontSize: 12,
+              color: '#6366f1',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              textDecoration: 'underline',
+            }}
+          >
+            {expanded ? 'Show less' : `Show more (${sections.length - 5} more sections)`}
+          </button>
+        )}
       </div>
     );
   };
 
   return (
     <div>
-      {renderAgentSections(negativeAgentResponse, negativeAgentLoading, '👎 Negative Feedback')}
-      {renderAgentSections(positiveAgentResponse, positiveAgentLoading, '👍 Positive Feedback')}
+      {renderAgentSections(negativeAgentResponse, negativeAgentLoading, '👎 Negative Feedback', expandedNegative, setExpandedNegative)}
+      {renderAgentSections(positiveAgentResponse, positiveAgentLoading, '👍 Positive Feedback', expandedPositive, setExpandedPositive)}
     </div>
   );
 }

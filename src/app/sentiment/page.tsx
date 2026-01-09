@@ -210,15 +210,18 @@ function SentimentDashboardContent() {
   const PIE_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#6366f1', '#f97316', '#06b6d4'];
 
   // Filter feedback by time range
-  const filterFeedbackByTimeRange = (feedback: any[], days: number) => {
+  // offset: how many days back to start the window (0 = current period, days = prior period)
+  const filterFeedbackByTimeRange = (feedback: any[], days: number, offset: number = 0) => {
     const now = new Date();
-    const startDate = new Date(now);
+    const endDate = new Date(now);
+    endDate.setDate(endDate.getDate() - offset);
+    const startDate = new Date(endDate);
     startDate.setDate(startDate.getDate() - days);
     
     return feedback.filter((item: any) => {
       if (!item.createTime) return false;
       const itemDate = new Date(item.createTime);
-      return itemDate >= startDate;
+      return itemDate >= startDate && itemDate < endDate;
     });
   };
 
@@ -228,19 +231,64 @@ function SentimentDashboardContent() {
       const filtered = filterFeedbackByTimeRange(allFeedback, timeRange);
       setFilteredFeedback(filtered);
       
-      // Recalculate metrics for filtered data
+      // Recalculate metrics for FILTERED data (by time range)
       const positiveCount = filtered.filter((f: any) => f.sentiment === 'positive').length;
       const negativeCount = filtered.filter((f: any) => f.sentiment === 'negative').length;
       const totalFeedback = filtered.length;
+      
+      // Normalize emails: trim, lowercase, remove empty
+      const normalizeEmail = (email: string | undefined) => {
+        if (!email) return null;
+        const trimmed = email.trim().toLowerCase();
+        return trimmed.length > 0 ? trimmed : null;
+      };
+      
+      // Calculate unique raters from FILTERED data
+      const validEmails = filtered
+        .map((f: any) => normalizeEmail(f.user))
+        .filter((email): email is string => email !== null);
+      
+      const uniqueRaters = new Set(validEmails).size;
+      
+      // Repeat raters - users with 2+ feedback in THIS window
+      const userCounts = new Map<string, number>();
+      validEmails.forEach(email => {
+        userCounts.set(email, (userCounts.get(email) || 0) + 1);
+      });
+      const repeatRaters = Array.from(userCounts.values()).filter(count => count >= 2).length;
+      
+      // Top issue type from FILTERED data - normalize
+      const issueTypeCounts = new Map<string, number>();
+      filtered.forEach((f: any) => {
+        let issue = (f.issueType || '').trim();
+        if (!issue) issue = 'Unknown';
+        // Normalize: trim whitespace, uppercase
+        issue = issue.replace(/\s+/g, '_').toUpperCase();
+        issueTypeCounts.set(issue, (issueTypeCounts.get(issue) || 0) + 1);
+      });
+      const topIssueType = Array.from(issueTypeCounts.entries())
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Unknown';
+      
+      // Calculate prior period for trend delta
+      const priorFiltered = filterFeedbackByTimeRange(allFeedback, timeRange, timeRange);
+      const priorPositive = priorFiltered.filter((f: any) => f.sentiment === 'positive').length;
+      const priorTotal = priorFiltered.length;
+      const currentPositiveRate = totalFeedback > 0 ? (positiveCount / totalFeedback) * 100 : 0;
+      const priorPositiveRate = priorTotal > 0 ? (priorPositive / priorTotal) * 100 : 0;
+      const positiveRateDelta = currentPositiveRate - priorPositiveRate;
       
       setMetrics({
         totalFeedback,
         positiveCount,
         negativeCount,
         neutralCount: 0,
-        positiveRate: totalFeedback > 0 ? (positiveCount / totalFeedback) * 100 : 0,
+        positiveRate: currentPositiveRate,
         negativeRate: totalFeedback > 0 ? (negativeCount / totalFeedback) * 100 : 0,
         trendData: [],
+        uniqueRaters,
+        repeatRaters,
+        topIssueType,
+        positiveRateDelta: priorTotal > 0 ? positiveRateDelta : undefined,
       });
     }
   }, [timeRange, allFeedback]);
@@ -646,22 +694,34 @@ function SentimentDashboardContent() {
       const positiveRate = totalFeedback > 0 ? (combinedStats.positiveCount / totalFeedback) * 100 : 0;
       const negativeRate = totalFeedback > 0 ? (combinedStats.negativeCount / totalFeedback) * 100 : 0;
       
-      // Calculate advanced KPIs
-      const uniqueRaters = new Set(allFeedbackItems.filter(f => f.user).map(f => f.user)).size;
+      // Calculate advanced KPIs (NOTE: Using allFeedbackItems - will be filtered by timeRange in useEffect)
+      // Normalize and filter emails: trim, lowercase, remove empty
+      const normalizeEmail = (email: string | undefined) => {
+        if (!email) return null;
+        const trimmed = email.trim().toLowerCase();
+        return trimmed.length > 0 ? trimmed : null;
+      };
+      
+      const validEmails = allFeedbackItems
+        .map(f => normalizeEmail(f.user))
+        .filter((email): email is string => email !== null);
+      
+      const uniqueRaters = new Set(validEmails).size;
       
       // Repeat raters - users with 2+ feedback
       const userCounts = new Map<string, number>();
-      allFeedbackItems.forEach(f => {
-        if (f.user) {
-          userCounts.set(f.user, (userCounts.get(f.user) || 0) + 1);
-        }
+      validEmails.forEach(email => {
+        userCounts.set(email, (userCounts.get(email) || 0) + 1);
       });
       const repeatRaters = Array.from(userCounts.values()).filter(count => count >= 2).length;
       
-      // Top issue type
+      // Top issue type - normalize issueType
       const issueTypeCounts = new Map<string, number>();
       allFeedbackItems.forEach(f => {
-        const issue = f.issueType || 'Unknown';
+        let issue = (f.issueType || '').trim();
+        if (!issue) issue = 'Unknown';
+        // Normalize common variants
+        issue = issue.replace(/\s+/g, '_').toUpperCase();
         issueTypeCounts.set(issue, (issueTypeCounts.get(issue) || 0) + 1);
       });
       const topIssueType = Array.from(issueTypeCounts.entries())
@@ -819,10 +879,10 @@ function SentimentDashboardContent() {
         marginBottom: 32,
       }}>
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 600, color: '#0f172a', margin: 0 }}>
             User Sentiment ({selectedCustomer})
           </h2>
-          <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
+          <p style={{ margin: '4px 0 0 0', fontSize: 15, color: '#64748b', fontWeight: 400 }}>
             Track user satisfaction and feedback in real time
           </p>
         </div>

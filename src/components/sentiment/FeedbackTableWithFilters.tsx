@@ -44,31 +44,31 @@ export function FeedbackTableWithFilters({
   return (
     <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
+        <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
           All Feedback ({filteredData.length})
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent style={{ padding: 24 }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead style={{ position: 'sticky', top: 0, background: '#fafafa', zIndex: 10 }}>
-              <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#64748b' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+            <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 10 }}>
+              <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
                   ID
                 </th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#64748b' }}>
+                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
                   Date
                 </th>
-                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 500, fontSize: 12, color: '#64748b' }}>
+                <th style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, fontSize: 13, color: '#475569' }}>
                   Sentiment
                 </th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#64748b' }}>
+                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
                   User
                 </th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#64748b' }}>
+                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
                   Issue
                 </th>
-                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, fontSize: 12, color: '#64748b', minWidth: 300 }}>
+                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569', minWidth: 350 }}>
                   Comment
                 </th>
               </tr>
@@ -91,26 +91,27 @@ export function FeedbackTableWithFilters({
                     e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#fafafa';
                   }}
                 >
-                  <td style={{ padding: '12px', verticalAlign: 'middle' }}>
+                  <td style={{ padding: '14px', verticalAlign: 'middle' }}>
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500, fontSize: 13 }}
+                      style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500, fontSize: 14 }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       {item.ticketKey}
                     </a>
                   </td>
-                  <td style={{ padding: '12px', whiteSpace: 'nowrap', fontSize: 13, color: '#64748b' }}>
+                  <td style={{ padding: '14px', whiteSpace: 'nowrap', fontSize: 14, color: '#64748b' }}>
                     {item.date || '-'}
                   </td>
-                  <td style={{ padding: '12px', textAlign: 'center' }}>
+                  <td style={{ padding: '14px', textAlign: 'center' }}>
                     <span
                       style={{
-                        padding: '3px 8px',
-                        borderRadius: 4,
-                        fontSize: 12,
+                        padding: '4px 10px',
+                        borderRadius: 5,
+                        fontSize: 13,
+                        fontWeight: 500,
                         background: item.sentiment === 'positive' ? '#d1fae5' : '#fed7aa',
                         color: item.sentiment === 'positive' ? '#065f46' : '#92400e',
                       }}
@@ -118,15 +119,15 @@ export function FeedbackTableWithFilters({
                       {item.sentiment === 'positive' ? '👍' : '👎'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px', fontSize: 13, color: '#334155', fontFamily: 'monospace', maxWidth: 180 }}>
+                  <td style={{ padding: '14px', fontSize: 14, color: '#334155', fontFamily: 'monospace', maxWidth: 200 }}>
                     <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.user || '-'}
                     </div>
                   </td>
-                  <td style={{ padding: '12px', fontSize: 13, color: '#334155' }}>
+                  <td style={{ padding: '14px', fontSize: 14, color: '#334155' }}>
                     {item.issueType || 'Unknown'}
                   </td>
-                  <td style={{ padding: '12px', fontSize: 13, color: '#475569', lineHeight: 1.5 }}>
+                  <td style={{ padding: '14px', fontSize: 14, color: '#475569', lineHeight: 1.7 }}>
                     <div style={{
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
