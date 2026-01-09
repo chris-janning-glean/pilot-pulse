@@ -112,7 +112,23 @@ export function KPIStrip({
   };
 
   // KPI definitions with tooltip content
-  const kpis = [
+  const kpis: Array<{
+    icon: any;
+    iconColor: string;
+    label: string;
+    value: any;
+    subtext: string;
+    delta?: number;
+    isPercentagePoints?: boolean;
+    onClick?: () => void;
+    isEmail?: boolean;
+    smallValue?: boolean;
+    infoTooltip?: {
+      title: string;
+      body: string[];
+      sampleSize?: number;
+    };
+  }> = [
     {
       icon: MessageSquare,
       iconColor: '#6366f1',
