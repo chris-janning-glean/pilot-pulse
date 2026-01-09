@@ -43,6 +43,12 @@ export default function SettingsPage() {
               <p style={{ color: '#374151', margin: '8px 0 0 0' }}>
                 NEXT_PUBLIC_GLEAN_OAUTH_TOKEN=your_oauth_token_here
               </p>
+              <p style={{ color: '#374151', margin: '8px 0 0 0' }}>
+                NEXT_PUBLIC_NEGATIVE_AGENT_ID={process.env.NEXT_PUBLIC_NEGATIVE_AGENT_ID || 'not_set'}
+              </p>
+              <p style={{ color: '#374151', margin: '8px 0 0 0' }}>
+                NEXT_PUBLIC_POSITIVE_AGENT_ID={process.env.NEXT_PUBLIC_POSITIVE_AGENT_ID || 'not_set'}
+              </p>
             </div>
           </div>
 

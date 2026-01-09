@@ -19,8 +19,8 @@ function SentimentDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Initialize customer from URL param or default to 'whirlpool'
-  const initialCustomer = searchParams.get('customer') || 'whirlpool';
+  // Initialize customer from URL param (required)
+  const initialCustomer = searchParams.get('customer') || '';
   
   const [allFeedback, setAllFeedback] = useState<FeedbackTicket[]>([]); // Store all feedback
   const [filteredFeedback, setFilteredFeedback] = useState<FeedbackTicket[]>([]); // Filtered by date range
@@ -684,8 +684,30 @@ function SentimentDashboardContent() {
   // Update customer and URL - defined here so it works even during errors
   const handleCustomerChange = (customer: string) => {
     setSelectedCustomer(customer);
-    router.push(`/dashboard/sentiment?customer=${customer}`);
+    router.push(`/sentiment?customer=${customer}`);
   };
+
+  // Require customer parameter in URL
+  if (!selectedCustomer) {
+    return (
+      <div style={{ padding: 32, textAlign: 'center', maxWidth: 500, margin: '80px auto' }}>
+        <div style={{ padding: 32, background: '#fffbeb', border: '1px solid #fbbf24', borderRadius: 12 }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#92400e', marginBottom: 12 }}>
+            Customer Parameter Required
+          </div>
+          <div style={{ fontSize: 14, color: '#78350f', marginBottom: 16 }}>
+            Add a customer parameter to the URL to view data.
+          </div>
+          <code style={{ fontSize: 13, color: '#78350f', padding: 12, background: '#fef3c7', borderRadius: 6, display: 'block', marginBottom: 12 }}>
+            /sentiment?customer=whirlpool
+          </code>
+          <div style={{ fontSize: 12, color: '#92400e' }}>
+            whirlpool | generalmotors | tailoredbrands | insurity
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -1366,14 +1388,9 @@ function SentimentDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   {negativeAgentLoading ? (
-                    <div style={{ 
-                      padding: 40, 
-                      textAlign: 'center',
-                      color: '#64748b',
-                      fontSize: 13
-                    }}>
-                      <div style={{ marginBottom: 8 }}>Analyzing negative feedback...</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>This may take a moment</div>
+                    <div style={{ padding: 48, textAlign: 'center' }}>
+                      <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>Analyzing negative feedback patterns...</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>Please wait</div>
                     </div>
                   ) : negativeAgentResponse ? (
                     <>
@@ -1538,14 +1555,9 @@ function SentimentDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   {positiveAgentLoading ? (
-                    <div style={{ 
-                      padding: 40, 
-                      textAlign: 'center',
-                      color: '#64748b',
-                      fontSize: 13
-                    }}>
-                      <div style={{ marginBottom: 8 }}>Analyzing positive feedback...</div>
-                      <div style={{ fontSize: 11, color: '#94a3b8' }}>This may take a moment</div>
+                    <div style={{ padding: 48, textAlign: 'center' }}>
+                      <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>Analyzing positive feedback patterns...</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>Please wait</div>
                     </div>
                   ) : positiveAgentResponse ? (
                     <>
