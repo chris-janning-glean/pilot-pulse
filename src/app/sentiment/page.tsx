@@ -16,12 +16,13 @@ import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, 
 import { KPIStrip } from '@/components/sentiment/KPIStrip';
 import { FilterBar } from '@/components/sentiment/FilterBar';
 import { DetailDrawer } from '@/components/sentiment/DetailDrawer';
-import { InsightsPanel } from '@/components/sentiment/InsightsPanel';
 import { FeedbackVolumeChart } from '@/components/sentiment/FeedbackVolumeChart';
 import { PositiveRateChart } from '@/components/sentiment/PositiveRateChart';
-import { TopIssuesChart } from '@/components/sentiment/TopIssuesChart';
 import { UniqueRatersChart } from '@/components/sentiment/UniqueRatersChart';
 import { FeedbackTableWithFilters } from '@/components/sentiment/FeedbackTableWithFilters';
+import { AgentSummaryCard } from '@/components/sentiment/AgentSummaryCard';
+import { TopUsersCard } from '@/components/sentiment/TopUsersCard';
+import { TagCloudCard } from '@/components/sentiment/TagCloudCard';
 
 function SentimentDashboardContent() {
   const router = useRouter();
@@ -56,12 +57,11 @@ function SentimentDashboardContent() {
   const [positiveFeedback, setPositiveFeedback] = useState<any[]>([]);
   const [negativeFeedback, setNegativeFeedback] = useState<any[]>([]);
   
-  // New state for filters, drawer, and tabs
+  // New state for filters and drawer
   const [searchFilter, setSearchFilter] = useState('');
   const [sentimentFilter, setSentimentFilter] = useState<'all' | 'positive' | 'negative'>('all');
   const [issueTypeFilter, setIssueTypeFilter] = useState('all');
   const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null); // For detail drawer
-  const [insightsTab, setInsightsTab] = useState<'summary' | 'users' | 'examples'>('summary');
   const [negativeApiCall, setNegativeApiCall] = useState<any>(null);
   const [positiveApiCall, setPositiveApiCall] = useState<any>(null);
   const [showApiCalls, setShowApiCalls] = useState(false);
@@ -930,72 +930,73 @@ function SentimentDashboardContent() {
         </div>
       </div>
 
-      {/* NEW 3-ZONE LAYOUT */}
+      {/* STORY-FIRST LAYOUT */}
       {metrics && (
         <>
-          {/* ZONE 1: KPI Strip */}
+          {/* A) KPI Strip - The Pulse */}
           <KPIStrip metrics={metrics} />
 
-          {/* ZONE 2: Charts Grid */}
+          {/* B) Charts Row - The Trend */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
             <FeedbackVolumeChart allFeedback={allFeedback} timeRange={timeRange} />
             <PositiveRateChart allFeedback={allFeedback} timeRange={timeRange} />
-            <TopIssuesChart allFeedback={allFeedback} />
-            <UniqueRatersChart allFeedback={allFeedback} timeRange={timeRange} />
           </div>
 
-          {/* ZONE 3: Two-Column Triage Layout */}
-          <div style={{ display: 'grid', gridTemplateColumns: '70% 30%', gap: 20, alignItems: 'start' }}>
-            {/* Left Column: Table with Filters */}
-            <div>
-              {/* Filter Bar */}
-              <FilterBar
-                searchFilter={searchFilter}
-                setSearchFilter={setSearchFilter}
-                sentimentFilter={sentimentFilter}
-                setSentimentFilter={setSentimentFilter}
-                issueTypeFilter={issueTypeFilter}
-                setIssueTypeFilter={setIssueTypeFilter}
-                issueTypes={Array.from(new Set(allFeedback.map(f => f.issueType || 'Unknown')))}
-                hasActiveFilters={searchFilter !== '' || sentimentFilter !== 'all' || issueTypeFilter !== 'all'}
-                onClearFilters={() => {
-                  setSearchFilter('');
-                  setSentimentFilter('all');
-                  setIssueTypeFilter('all');
-                }}
-              />
+          {/* C) Agent Summary - The Insights */}
+          <AgentSummaryCard
+            negativeAgentResponse={negativeAgentResponse}
+            positiveAgentResponse={positiveAgentResponse}
+            negativeAgentLoading={negativeAgentLoading}
+            positiveAgentLoading={positiveAgentLoading}
+          />
 
-              {/* Feedback Table */}
-              <FeedbackTableWithFilters
-                allFeedback={allFeedback}
-                searchFilter={searchFilter}
-                sentimentFilter={sentimentFilter}
-                issueTypeFilter={issueTypeFilter}
-                onRowClick={setSelectedFeedback}
-              />
-            </div>
-
-            {/* Right Column: Sticky Insights Panel */}
-            <InsightsPanel
-              activeTab={insightsTab}
-              onTabChange={setInsightsTab}
-              negativeAgentResponse={negativeAgentResponse}
-              positiveAgentResponse={positiveAgentResponse}
-              negativeAgentLoading={negativeAgentLoading}
-              positiveAgentLoading={positiveAgentLoading}
+          {/* D) Who + What Row - Top Users + Tag Cloud */}
+          <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 16, marginBottom: 24 }}>
+            <TopUsersCard
               allFeedback={allFeedback}
               onFilterUser={(email) => {
-                // Filter table to this user
                 setSearchFilter(email);
                 setSentimentFilter('all');
                 setIssueTypeFilter('all');
               }}
-              onFilterExample={(filters) => {
-                // Apply filters from example
-                if (filters.user) setSearchFilter(filters.user);
-                if (filters.sentiment) setSentimentFilter(filters.sentiment as any);
-                if (filters.issueType) setIssueTypeFilter(filters.issueType);
+            />
+            <TagCloudCard
+              negativeAgentResponse={negativeAgentResponse}
+              positiveAgentResponse={positiveAgentResponse}
+              negativeAgentLoading={negativeAgentLoading}
+              positiveAgentLoading={positiveAgentLoading}
+              onPhraseClick={(phrase, sentiment) => {
+                setSearchFilter(phrase);
+                setSentimentFilter(sentiment);
+                setIssueTypeFilter('all');
               }}
+            />
+          </div>
+
+          {/* E) All Feedback Table - The Details */}
+          <div>
+            <FilterBar
+              searchFilter={searchFilter}
+              setSearchFilter={setSearchFilter}
+              sentimentFilter={sentimentFilter}
+              setSentimentFilter={setSentimentFilter}
+              issueTypeFilter={issueTypeFilter}
+              setIssueTypeFilter={setIssueTypeFilter}
+              issueTypes={Array.from(new Set(allFeedback.map(f => f.issueType || 'Unknown')))}
+              hasActiveFilters={searchFilter !== '' || sentimentFilter !== 'all' || issueTypeFilter !== 'all'}
+              onClearFilters={() => {
+                setSearchFilter('');
+                setSentimentFilter('all');
+                setIssueTypeFilter('all');
+              }}
+            />
+
+            <FeedbackTableWithFilters
+              allFeedback={allFeedback}
+              searchFilter={searchFilter}
+              sentimentFilter={sentimentFilter}
+              issueTypeFilter={issueTypeFilter}
+              onRowClick={setSelectedFeedback}
             />
           </div>
 

@@ -50,18 +50,12 @@ export function KPIStrip({ metrics }: KPIStripProps) {
       subtext: (metrics.repeatRaters || 0) > 0 ? 'users with 2+ feedback' : 'insufficient data',
       tooltip: `${metrics.repeatRaters || 0} users with multiple submissions`,
     },
-    {
-      label: 'Top Issue',
-      value: metrics.topIssueType || 'Unknown',
-      subtext: 'most common',
-      tooltip: `Most common issue type in selected period`,
-    },
   ];
 
   return (
     <div style={{ 
       display: 'grid', 
-      gridTemplateColumns: 'repeat(6, 1fr)', 
+      gridTemplateColumns: 'repeat(5, 1fr)', 
       gap: 12,
       marginBottom: 24
     }}>
