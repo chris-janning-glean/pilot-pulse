@@ -12,7 +12,7 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
     const dateGroups = new Map<string, { positive: number; total: number }>();
     const now = new Date();
 
-    // Initialize all dates
+    // Build continuous date series for ALL days in window
     for (let i = 0; i < timeRange; i++) {
       const date = new Date(now);
       date.setDate(date.getDate() - (timeRange - 1 - i));
@@ -20,7 +20,7 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
       dateGroups.set(dateKey, { positive: 0, total: 0 });
     }
 
-    // Count by date
+    // Count feedback by date
     allFeedback.forEach((f) => {
       if (f.createTime) {
         const dateKey = f.createTime.split('T')[0];
@@ -32,6 +32,7 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
       }
     });
 
+    // Build data points with continuous dates
     const dataPoints = Array.from(dateGroups.entries()).map(([date, counts]) => ({
       date,
       label: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -39,17 +40,24 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
       positive: counts.positive,
       negative: counts.total - counts.positive,
       total: counts.total,
-      lowSample: counts.total < 3,
+      lowSample: counts.total > 0 && counts.total < 3,
     }));
 
-    // Calculate 7-day rolling average
+    // Calculate rolling average with variable window (starts as soon as there's data)
     const withRolling = dataPoints.map((point, idx) => {
-      const start = Math.max(0, idx - 6);
-      const window = dataPoints.slice(start, idx + 1).filter(p => p.total > 0);
-      const avg = window.length > 0 
-        ? window.reduce((sum, p) => sum + (p.rate || 0), 0) / window.length 
+      // Get last up-to-7 days with valid data (total > 0)
+      const validDaysWindow: number[] = [];
+      for (let j = Math.max(0, idx - 6); j <= idx; j++) {
+        if (dataPoints[j].total > 0 && dataPoints[j].rate !== null) {
+          validDaysWindow.push(dataPoints[j].rate!);
+        }
+      }
+      
+      const rolling = validDaysWindow.length > 0
+        ? Math.round(validDaysWindow.reduce((sum, r) => sum + r, 0) / validDaysWindow.length)
         : null;
-      return { ...point, rolling: avg !== null ? Math.round(avg) : null };
+      
+      return { ...point, rolling, rollingWindow: validDaysWindow.length };
     });
 
     return withRolling;
@@ -64,8 +72,9 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
           Positive Rate
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
+      <CardContent style={{ padding: 24 }}>
+        <div style={{ height: 280 }}>
+          <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} />
             <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} label={{ value: '% Positive', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: '#64748b' } }} />
@@ -112,10 +121,11 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
               connectNulls
             />
           </LineChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
         
         {/* Legend */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 12, fontSize: 11 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 11 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 20, height: 3, background: '#14b8a6' }} />
             <span style={{ color: '#64748b' }}>7-day Rolling Average</span>

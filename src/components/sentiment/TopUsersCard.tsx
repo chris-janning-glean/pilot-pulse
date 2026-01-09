@@ -50,16 +50,16 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
   };
 
   return (
-    <Card style={{ minHeight: 420, maxHeight: 520, display: 'flex', flexDirection: 'column' }}>
-      <CardHeader>
-        <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
+    <Card>
+      <CardHeader style={{ padding: 24, paddingBottom: 8 }}>
+        <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>
           Top Users
         </CardTitle>
-        <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>
+        <div style={{ fontSize: 13, color: '#64748b' }}>
           Key contributors and at-risk users
         </div>
       </CardHeader>
-      <CardContent style={{ padding: 24, flex: 1, overflowY: 'auto' }}>
+      <CardContent style={{ padding: 24, paddingTop: 16 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {/* Left Column: Top Raters */}
           <div>

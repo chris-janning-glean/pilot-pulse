@@ -71,36 +71,8 @@ export function AgentSummaryRenderer({ sections, variant }: AgentSummaryRenderer
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* TL;DR Chips */}
-      {tldrChips.length > 0 && (
-        <div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            TL;DR
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {tldrChips.map((chip, idx) => (
-              <span
-                key={idx}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  background: scheme.chip,
-                  border: `1px solid ${scheme.chipBorder}`,
-                  borderRadius: 9999,
-                  padding: '4px 12px',
-                  fontSize: 12,
-                  color: '#475569',
-                }}
-              >
-                {chip}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Grouped Sections */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {/* Grouped Sections (NO TL;DR in panels) */}
       {groupedSections.slice(0, 3).map((group, idx) => {
         const isRepComments = group.heading.toLowerCase().includes('representative') || 
                               group.heading.toLowerCase().includes('comment') ||

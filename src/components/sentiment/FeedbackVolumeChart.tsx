@@ -52,8 +52,9 @@ export function FeedbackVolumeChart({ allFeedback, timeRange }: FeedbackVolumeCh
           Feedback Volume (👍/👎)
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
+      <CardContent style={{ padding: 24 }}>
+        <div style={{ height: 280 }}>
+          <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} />
             <YAxis tick={{ fontSize: 11, fill: '#64748b' }} />
@@ -62,7 +63,8 @@ export function FeedbackVolumeChart({ allFeedback, timeRange }: FeedbackVolumeCh
             <Bar dataKey="positive" stackId="a" fill="#14b8a6" name="Positive" />
             <Bar dataKey="negative" stackId="a" fill="#f59e0b" name="Negative" />
           </BarChart>
-        </ResponsiveContainer>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );
