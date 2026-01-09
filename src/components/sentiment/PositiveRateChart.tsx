@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
@@ -8,6 +8,7 @@ interface PositiveRateChartProps {
 }
 
 export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartProps) {
+  const [showPositive, setShowPositive] = useState(true);
   const generateRateData = () => {
     const dateGroups = new Map<string, { positive: number; total: number }>();
     const now = new Date();
@@ -79,16 +80,54 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
   return (
     <Card>
       <CardHeader>
-        <CardTitle style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
-          Sentiment Rates
-        </CardTitle>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <CardTitle style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>
+            Sentiment Rate
+          </CardTitle>
+          
+          {/* Toggle Buttons */}
+          <div style={{ display: 'flex', gap: 4 }}>
+            <button
+              onClick={() => setShowPositive(true)}
+              style={{
+                padding: '4px 12px',
+                fontSize: 11,
+                fontWeight: 500,
+                color: showPositive ? '#ffffff' : '#10b981',
+                backgroundColor: showPositive ? '#10b981' : '#ffffff',
+                border: '1px solid #10b981',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              👍 Positive
+            </button>
+            <button
+              onClick={() => setShowPositive(false)}
+              style={{
+                padding: '4px 12px',
+                fontSize: 11,
+                fontWeight: 500,
+                color: !showPositive ? '#ffffff' : '#f59e0b',
+                backgroundColor: !showPositive ? '#f59e0b' : '#ffffff',
+                border: '1px solid #f59e0b',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              👎 Negative
+            </button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent style={{ padding: 24 }}>
         <div style={{ height: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} label={{ value: 'Percentage', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: '#64748b' } }} />
+            <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} label={{ value: showPositive ? '% Positive' : '% Negative', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: '#64748b' } }} />
             <Tooltip 
               content={({ payload }) => {
                 if (!payload || !payload.length) return null;
@@ -107,76 +146,74 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
                 );
               }}
             />
-            {/* Positive Rate Lines */}
-            <Line 
-              type="monotone" 
-              dataKey="rollingPositive" 
-              stroke="#10b981" 
-              strokeWidth={3} 
-              name="Positive 7-day Avg" 
-              dot={false}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="positiveRate" 
-              stroke="#86efac" 
-              strokeWidth={1} 
-              name="Daily % Positive" 
-              dot={(props: any) => {
-                if (!props.payload || props.payload.lowSample) {
-                  return <circle cx={props.cx} cy={props.cy} r={2} fill="#10b981" opacity={0.5} />;
-                }
-                return <circle cx={props.cx} cy={props.cy} r={3} fill="#10b981" />;
-              }}
-              connectNulls
-            />
-            
-            {/* Negative Rate Lines */}
-            <Line 
-              type="monotone" 
-              dataKey="rollingNegative" 
-              stroke="#f59e0b" 
-              strokeWidth={3} 
-              name="Negative 7-day Avg" 
-              dot={false}
-              connectNulls
-            />
-            <Line 
-              type="monotone" 
-              dataKey="negativeRate" 
-              stroke="#fcd34d" 
-              strokeWidth={1} 
-              name="Daily % Negative" 
-              dot={(props: any) => {
-                if (!props.payload || props.payload.lowSample) {
-                  return <circle cx={props.cx} cy={props.cy} r={2} fill="#f59e0b" opacity={0.5} />;
-                }
-                return <circle cx={props.cx} cy={props.cy} r={3} fill="#f59e0b" />;
-              }}
-              connectNulls
-            />
+            {showPositive ? (
+              <>
+                {/* Positive Rate Lines */}
+                <Line 
+                  type="monotone" 
+                  dataKey="rollingPositive" 
+                  stroke="#10b981" 
+                  strokeWidth={3} 
+                  name="7-day Avg" 
+                  dot={false}
+                  connectNulls
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="positiveRate" 
+                  stroke="#86efac" 
+                  strokeWidth={1} 
+                  name="Daily Rate" 
+                  dot={(props: any) => {
+                    if (!props.payload || props.payload.lowSample) {
+                      return <circle cx={props.cx} cy={props.cy} r={2} fill="#10b981" opacity={0.5} />;
+                    }
+                    return <circle cx={props.cx} cy={props.cy} r={3} fill="#10b981" />;
+                  }}
+                  connectNulls
+                />
+              </>
+            ) : (
+              <>
+                {/* Negative Rate Lines */}
+                <Line 
+                  type="monotone" 
+                  dataKey="rollingNegative" 
+                  stroke="#f59e0b" 
+                  strokeWidth={3} 
+                  name="7-day Avg" 
+                  dot={false}
+                  connectNulls
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="negativeRate" 
+                  stroke="#fcd34d" 
+                  strokeWidth={1} 
+                  name="Daily Rate" 
+                  dot={(props: any) => {
+                    if (!props.payload || props.payload.lowSample) {
+                      return <circle cx={props.cx} cy={props.cy} r={2} fill="#f59e0b" opacity={0.5} />;
+                    }
+                    return <circle cx={props.cx} cy={props.cy} r={3} fill="#f59e0b" />;
+                  }}
+                  connectNulls
+                />
+              </>
+            )}
           </LineChart>
           </ResponsiveContainer>
         </div>
         
         {/* Legend */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 16, fontSize: 11, height: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 11, height: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 20, height: 3, background: '#10b981' }} />
-            <span style={{ color: '#64748b' }}>Positive 7-day Avg</span>
+            <div style={{ width: 20, height: 3, background: showPositive ? '#10b981' : '#f59e0b' }} />
+            <span style={{ color: '#64748b' }}>7-day Rolling Average</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 20, height: 2, background: '#86efac' }} />
-            <span style={{ color: '#64748b' }}>Daily % Positive</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 20, height: 3, background: '#f59e0b' }} />
-            <span style={{ color: '#64748b' }}>Negative 7-day Avg</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <div style={{ width: 20, height: 2, background: '#fcd34d' }} />
-            <span style={{ color: '#64748b' }}>Daily % Negative</span>
+            <div style={{ width: 20, height: 2, background: showPositive ? '#86efac' : '#fcd34d' }} />
+            <span style={{ color: '#64748b' }}>Daily {showPositive ? '% Positive' : '% Negative'}</span>
           </div>
         </div>
       </CardContent>
