@@ -1754,8 +1754,8 @@ function SentimentDashboardContent() {
             </div>
           </div>
 
-          {/* API Calls - Collapsible */}
-          <Card style={{ marginBottom: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
+          {/* API Calls - Moved to Settings Page */}
+          <Card style={{ display: 'none', marginBottom: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
             <CardHeader>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>API Calls</CardTitle>
@@ -1877,7 +1877,7 @@ function SentimentDashboardContent() {
       )}
 
       {/* Raw JSON Debug Section */}
-      <Card style={{ marginTop: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
+      <Card style={{ display: 'none', marginTop: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
         <CardHeader>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Debug: Raw API Responses</CardTitle>
