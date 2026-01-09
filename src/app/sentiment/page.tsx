@@ -62,6 +62,16 @@ function SentimentDashboardContent() {
   const [sentimentFilter, setSentimentFilter] = useState<'all' | 'positive' | 'negative'>('all');
   const [issueTypeFilter, setIssueTypeFilter] = useState('all');
   const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null); // For detail drawer
+  
+  // Extended KPI state
+  const [kpiExtras, setKpiExtras] = useState<{
+    priorMetrics?: { totalFeedback: number; uniqueRaters: number; repeatRaters: number };
+    mostActiveRater?: { email: string; count: number };
+    mostPositiveUser?: { email: string; count: number; rate: number };
+    mostNegativeUser?: { email: string; count: number; rate: number };
+    topPositiveTerm?: { phrase: string; frequency: number };
+    topNegativeTerm?: { phrase: string; frequency: number };
+  }>({});
   const [negativeApiCall, setNegativeApiCall] = useState<any>(null);
   const [positiveApiCall, setPositiveApiCall] = useState<any>(null);
   const [showApiCalls, setShowApiCalls] = useState(false);
@@ -273,9 +283,59 @@ function SentimentDashboardContent() {
       const priorFiltered = filterFeedbackByTimeRange(allFeedback, timeRange, timeRange);
       const priorPositive = priorFiltered.filter((f: any) => f.sentiment === 'positive').length;
       const priorTotal = priorFiltered.length;
+      
+      // Prior period user metrics
+      const priorValidEmails = priorFiltered
+        .map((f: any) => normalizeEmail(f.user))
+        .filter((email): email is string => email !== null);
+      const priorUniqueRaters = new Set(priorValidEmails).size;
+      const priorUserCounts = new Map<string, number>();
+      priorValidEmails.forEach(email => {
+        priorUserCounts.set(email, (priorUserCounts.get(email) || 0) + 1);
+      });
+      const priorRepeatRaters = Array.from(priorUserCounts.values()).filter(count => count >= 2).length;
+      
       const currentPositiveRate = totalFeedback > 0 ? (positiveCount / totalFeedback) * 100 : 0;
       const priorPositiveRate = priorTotal > 0 ? (priorPositive / priorTotal) * 100 : 0;
       const positiveRateDelta = currentPositiveRate - priorPositiveRate;
+      
+      // NEW KPI calculations
+      // Most Active Rater
+      const mostActiveRater = userCounts.size > 0
+        ? Array.from(userCounts.entries())
+            .map(([email, count]) => ({ email, count }))
+            .sort((a, b) => b.count - a.count)[0]
+        : undefined;
+      
+      // Most Positive User (min 2 feedback)
+      const userPositiveStats = new Map<string, { total: number; positive: number }>();
+      filtered.forEach((f: any) => {
+        const email = normalizeEmail(f.user);
+        if (email) {
+          const stats = userPositiveStats.get(email) || { total: 0, positive: 0 };
+          stats.total++;
+          if (f.sentiment === 'positive') stats.positive++;
+          userPositiveStats.set(email, stats);
+        }
+      });
+      const mostPositiveUser = Array.from(userPositiveStats.entries())
+        .filter(([_, stats]) => stats.total >= 2)
+        .map(([email, stats]) => ({
+          email,
+          count: stats.total,
+          rate: Math.round((stats.positive / stats.total) * 100),
+        }))
+        .sort((a, b) => b.rate - a.rate || b.count - a.count)[0];
+      
+      // Most Negative User (min 2 feedback)
+      const mostNegativeUser = Array.from(userPositiveStats.entries())
+        .filter(([_, stats]) => stats.total >= 2)
+        .map(([email, stats]) => ({
+          email,
+          count: stats.total,
+          rate: Math.round(((stats.total - stats.positive) / stats.total) * 100),
+        }))
+        .sort((a, b) => b.rate - a.rate || b.count - a.count)[0];
       
       setMetrics({
         totalFeedback,
@@ -290,8 +350,57 @@ function SentimentDashboardContent() {
         topIssueType,
         positiveRateDelta: priorTotal > 0 ? positiveRateDelta : undefined,
       });
+      
+      setKpiExtras({
+        priorMetrics: {
+          totalFeedback: priorTotal,
+          uniqueRaters: priorUniqueRaters,
+          repeatRaters: priorRepeatRaters,
+        },
+        mostActiveRater,
+        mostPositiveUser,
+        mostNegativeUser,
+      });
     }
   }, [timeRange, allFeedback]);
+
+  // Extract top terms from agent responses
+  React.useEffect(() => {
+    const extractTopTerm = (agentResponse: any) => {
+      if (!agentResponse || agentResponse.error) return undefined;
+      
+      const gleanMessage = agentResponse?.messages?.find((m: any) => m.role === 'GLEAN_AI');
+      const content = gleanMessage?.content?.[0];
+      let jsonData = content?.json;
+
+      if (!jsonData && content?.text) {
+        const trimmed = content.text.trim();
+        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+          try {
+            jsonData = JSON.parse(trimmed);
+          } catch (e) {}
+        }
+      }
+
+      if (!jsonData) return undefined;
+
+      const tagCloud = jsonData.tag_cloud || [];
+      const topTerm = tagCloud
+        .filter((tag: any) => tag.phrase && tag.frequency)
+        .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))[0];
+
+      return topTerm ? { phrase: topTerm.phrase, frequency: topTerm.frequency } : undefined;
+    };
+
+    const topPositiveTerm = extractTopTerm(positiveAgentResponse);
+    const topNegativeTerm = extractTopTerm(negativeAgentResponse);
+
+    setKpiExtras(prev => ({
+      ...prev,
+      topPositiveTerm,
+      topNegativeTerm,
+    }));
+  }, [negativeAgentResponse, positiveAgentResponse]);
 
   // Convert time range to timeframe string
   const getTimeframeString = (days: number): string => {
@@ -934,7 +1043,25 @@ function SentimentDashboardContent() {
       {metrics && (
         <>
           {/* A) KPI Strip - The Pulse */}
-          <KPIStrip metrics={metrics} />
+          <KPIStrip 
+            metrics={metrics} 
+            priorMetrics={kpiExtras.priorMetrics}
+            mostActiveRater={kpiExtras.mostActiveRater}
+            mostPositiveUser={kpiExtras.mostPositiveUser}
+            mostNegativeUser={kpiExtras.mostNegativeUser}
+            topPositiveTerm={kpiExtras.topPositiveTerm}
+            topNegativeTerm={kpiExtras.topNegativeTerm}
+            onFilterUser={(email) => {
+              setSearchFilter(email);
+              setSentimentFilter('all');
+              setIssueTypeFilter('all');
+            }}
+            onFilterPhrase={(phrase, sentiment) => {
+              setSearchFilter(phrase);
+              setSentimentFilter(sentiment);
+              setIssueTypeFilter('all');
+            }}
+          />
 
           {/* B) Charts Row - The Trend */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
