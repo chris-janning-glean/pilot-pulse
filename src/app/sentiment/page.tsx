@@ -12,6 +12,16 @@ import Link from 'next/link';
 import { buttonStyles } from '@/lib/commonStyles';
 import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 
+// New modular components
+import { KPIStrip } from '@/components/sentiment/KPIStrip';
+import { FilterBar } from '@/components/sentiment/FilterBar';
+import { DetailDrawer } from '@/components/sentiment/DetailDrawer';
+import { InsightsPanel } from '@/components/sentiment/InsightsPanel';
+import { FeedbackVolumeChart } from '@/components/sentiment/FeedbackVolumeChart';
+import { PositiveRateChart } from '@/components/sentiment/PositiveRateChart';
+import { TopIssuesChart } from '@/components/sentiment/TopIssuesChart';
+import { FeedbackTableWithFilters } from '@/components/sentiment/FeedbackTableWithFilters';
+
 function SentimentDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
