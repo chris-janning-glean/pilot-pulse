@@ -20,6 +20,7 @@ import { InsightsPanel } from '@/components/sentiment/InsightsPanel';
 import { FeedbackVolumeChart } from '@/components/sentiment/FeedbackVolumeChart';
 import { PositiveRateChart } from '@/components/sentiment/PositiveRateChart';
 import { TopIssuesChart } from '@/components/sentiment/TopIssuesChart';
+import { UniqueRatersChart } from '@/components/sentiment/UniqueRatersChart';
 import { FeedbackTableWithFilters } from '@/components/sentiment/FeedbackTableWithFilters';
 
 function SentimentDashboardContent() {
@@ -880,6 +881,7 @@ function SentimentDashboardContent() {
             <FeedbackVolumeChart allFeedback={allFeedback} timeRange={timeRange} />
             <PositiveRateChart allFeedback={allFeedback} timeRange={timeRange} />
             <TopIssuesChart allFeedback={allFeedback} />
+            <UniqueRatersChart allFeedback={allFeedback} timeRange={timeRange} />
           </div>
 
           {/* ZONE 3: Two-Column Triage Layout */}
