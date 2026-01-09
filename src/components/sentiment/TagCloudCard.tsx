@@ -38,13 +38,13 @@ export function TagCloudCard({
 
     const tagCloud = jsonData.tag_cloud || [];
 
-    // Sort by frequency and take fewer phrases
+    // Sort by frequency and take top phrases
     return tagCloud
       .filter((tag: any) => tag.phrase && tag.frequency)
       .sort((a: any, b: any) => (b.frequency || 0) - (a.frequency || 0))
-      .slice(0, 12) // Reduced from 20 to 12
+      .slice(0, 12)
       .map((tag: any) => ({
-        phrase: tag.phrase.length > 26 ? tag.phrase.substring(0, 24) + '...' : tag.phrase,
+        phrase: tag.phrase.length > 24 ? tag.phrase.substring(0, 22) + '...' : tag.phrase,
         fullPhrase: tag.phrase,
         frequency: tag.frequency,
         example: tag.example,
@@ -63,23 +63,23 @@ export function TagCloudCard({
       <div style={{ 
         display: 'flex', 
         flexWrap: 'wrap', 
-        gap: '12px 8px', 
+        gap: '8px 6px', 
         justifyContent: 'center', 
-        padding: '8px',
-        lineHeight: 1.2
+        padding: '6px',
+        lineHeight: 1.1
       }}>
         {tags.map((tag, idx) => {
           const frequency = Math.min(10, Math.max(1, tag.frequency || 1));
-          // Top 4-6 large, then taper quickly
-          let fontSize = 13;
-          if (idx === 0) fontSize = 24;
-          else if (idx === 1) fontSize = 22;
-          else if (idx === 2) fontSize = 20;
-          else if (idx === 3) fontSize = 18;
-          else if (idx < 6) fontSize = 16;
-          else fontSize = 13 + (frequency - 1) * 0.5;
+          // Reduced scale: cap at text-lg (18px)
+          let fontSize = 11;
+          if (idx === 0) fontSize = 18;      // text-lg
+          else if (idx === 1) fontSize = 16; // text-base
+          else if (idx === 2) fontSize = 15;
+          else if (idx === 3) fontSize = 14; // text-sm
+          else if (idx < 6) fontSize = 13;
+          else fontSize = 11 + (frequency - 1) * 0.3; // text-xs + small scaling
           
-          const fontWeight = idx < 4 ? 600 : idx < 6 ? 500 : 400;
+          const fontWeight = idx < 3 ? 600 : idx < 5 ? 500 : 400;
 
           return (
             <span
@@ -115,7 +115,7 @@ export function TagCloudCard({
 
   return (
     <Card style={{ minHeight: 420, maxHeight: 520, display: 'flex', flexDirection: 'column' }}>
-      <CardHeader>
+      <CardHeader style={{ padding: 24, paddingBottom: 16 }}>
         <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
           Top Phrases
         </CardTitle>
@@ -123,22 +123,26 @@ export function TagCloudCard({
           Most common themes
         </div>
       </CardHeader>
-      <CardContent style={{ padding: 24, flex: 1, overflowY: 'auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <CardContent style={{ padding: 24, paddingTop: 0, flex: 1, overflowY: 'auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
           {/* Negative Phrases */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#f59e0b', marginBottom: 8, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: '#64748b', marginBottom: 10, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               👎 Negative (n={negativeTags.length})
             </div>
-            {renderCloud(negativeTags, 'negative', '#f59e0b')}
+            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+              {renderCloud(negativeTags, 'negative', '#f59e0b')}
+            </div>
           </div>
 
           {/* Positive Phrases */}
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#14b8a6', marginBottom: 8, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 500, color: '#64748b', marginBottom: 10, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               👍 Positive (n={positiveTags.length})
             </div>
-            {renderCloud(positiveTags, 'positive', '#14b8a6')}
+            <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+              {renderCloud(positiveTags, 'positive', '#14b8a6')}
+            </div>
           </div>
         </div>
       </CardContent>

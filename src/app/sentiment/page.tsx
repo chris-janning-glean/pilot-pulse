@@ -953,7 +953,7 @@ function SentimentDashboardContent() {
           />
 
           {/* D) Who + What Row - Top Users + Tag Cloud */}
-          <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 16, marginBottom: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
             <TopUsersCard
               allFeedback={allFeedback}
               onFilterUser={(email) => {

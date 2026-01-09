@@ -60,14 +60,14 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
         </div>
       </CardHeader>
       <CardContent style={{ padding: 24, flex: 1, overflowY: 'auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Top Raters */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          {/* Left Column: Top Raters */}
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 10 }}>
               🏆 Top Raters
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {topRaters.slice(0, 8).map((user, idx) => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {topRaters.slice(0, 10).map((user, idx) => {
                 const { username, domain } = abbreviateEmail(user.email);
                 return (
                   <div
@@ -111,14 +111,19 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
             </div>
           </div>
 
-          {/* At-Risk Users */}
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 10 }}>
+          {/* Right Column: At-Risk Users */}
+          <div style={{
+            background: 'rgba(251, 191, 36, 0.08)',
+            border: '1px solid rgba(251, 191, 36, 0.25)',
+            borderRadius: 12,
+            padding: 12,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#92400e', marginBottom: 10 }}>
               ⚠️ At-Risk
             </div>
             {atRiskUsers.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                {atRiskUsers.slice(0, 8).map((user, idx) => {
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {atRiskUsers.slice(0, 10).map((user, idx) => {
                   const { username, domain } = abbreviateEmail(user.email);
                   return (
                     <div
@@ -126,9 +131,8 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
                       onClick={() => onFilterUser(user.email)}
                       title={user.email}
                       style={{
-                        padding: '8px 12px',
-                        background: 'rgba(251, 191, 36, 0.08)',
-                        borderBottom: '1px solid rgba(251, 191, 36, 0.2)',
+                        padding: '8px 0',
+                        borderBottom: '1px solid rgba(251, 191, 36, 0.15)',
                         cursor: 'pointer',
                         transition: 'background 0.15s',
                         display: 'grid',
@@ -137,10 +141,10 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
                         alignItems: 'center',
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(251, 191, 36, 0.15)';
+                        e.currentTarget.style.background = 'rgba(251, 191, 36, 0.12)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(251, 191, 36, 0.08)';
+                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
