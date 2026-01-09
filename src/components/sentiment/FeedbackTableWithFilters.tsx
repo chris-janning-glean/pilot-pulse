@@ -9,7 +9,7 @@ interface FeedbackTableProps {
   onRowClick: (feedback: any) => void;
 }
 
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 20;
 
 export function FeedbackTableWithFilters({
   allFeedback,
@@ -64,25 +64,25 @@ export function FeedbackTableWithFilters({
       </CardHeader>
       <CardContent style={{ padding: 24 }}>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 10 }}>
               <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#475569' }}>
                   ID
                 </th>
-                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#475569' }}>
                   Date
                 </th>
-                <th style={{ padding: '12px 14px', textAlign: 'center', fontWeight: 600, fontSize: 13, color: '#475569' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'center', fontWeight: 600, fontSize: 12, color: '#475569' }}>
                   Sentiment
                 </th>
-                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#475569' }}>
                   User
                 </th>
-                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569' }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#475569' }}>
                   Issue
                 </th>
-                <th style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, fontSize: 13, color: '#475569', minWidth: 350 }}>
+                <th style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, fontSize: 12, color: '#475569', minWidth: 350 }}>
                   Comment
                 </th>
               </tr>
@@ -105,26 +105,26 @@ export function FeedbackTableWithFilters({
                     e.currentTarget.style.background = index % 2 === 0 ? 'white' : '#fafafa';
                   }}
                 >
-                  <td style={{ padding: '14px', verticalAlign: 'middle' }}>
+                  <td style={{ padding: '12px', verticalAlign: 'middle' }}>
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500, fontSize: 14 }}
+                      style={{ color: '#6366f1', textDecoration: 'none', fontWeight: 500, fontSize: 12 }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       {item.ticketKey}
                     </a>
                   </td>
-                  <td style={{ padding: '14px', whiteSpace: 'nowrap', fontSize: 14, color: '#64748b' }}>
+                  <td style={{ padding: '12px', whiteSpace: 'nowrap', fontSize: 12, color: '#64748b' }}>
                     {item.date || '-'}
                   </td>
-                  <td style={{ padding: '14px', textAlign: 'center' }}>
+                  <td style={{ padding: '12px', textAlign: 'center' }}>
                     <span
                       style={{
-                        padding: '4px 10px',
+                        padding: '3px 8px',
                         borderRadius: 5,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: 500,
                         background: item.sentiment === 'positive' ? '#d1fae5' : '#fed7aa',
                         color: item.sentiment === 'positive' ? '#065f46' : '#92400e',
@@ -133,15 +133,15 @@ export function FeedbackTableWithFilters({
                       {item.sentiment === 'positive' ? '👍' : '👎'}
                     </span>
                   </td>
-                  <td style={{ padding: '14px', fontSize: 14, color: '#334155', fontFamily: 'monospace', maxWidth: 200 }}>
+                  <td style={{ padding: '12px', fontSize: 12, color: '#334155', fontFamily: 'monospace', maxWidth: 200 }}>
                     <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {item.user || '-'}
                     </div>
                   </td>
-                  <td style={{ padding: '14px', fontSize: 14, color: '#334155' }}>
+                  <td style={{ padding: '12px', fontSize: 12, color: '#334155' }}>
                     {item.issueType || 'Unknown'}
                   </td>
-                  <td style={{ padding: '14px', fontSize: 14, color: '#475569', lineHeight: 1.7 }}>
+                  <td style={{ padding: '12px', fontSize: 12, color: '#475569', lineHeight: 1.6 }}>
                     <div style={{
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -158,7 +158,7 @@ export function FeedbackTableWithFilters({
           </table>
 
           {filteredData.length === 0 && (
-            <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+            <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
               No feedback matches your filters
             </div>
           )}
@@ -174,7 +174,7 @@ export function FeedbackTableWithFilters({
             paddingTop: 16,
             borderTop: '1px solid #e2e8f0'
           }}>
-            <div style={{ fontSize: 14, color: '#64748b' }}>
+            <div style={{ fontSize: 13, color: '#64748b' }}>
               Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length}
             </div>
             

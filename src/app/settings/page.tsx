@@ -290,4 +290,3 @@ export default function SettingsPage() {
     </Suspense>
   );
 }
-

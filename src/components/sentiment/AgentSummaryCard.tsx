@@ -7,7 +7,7 @@ interface AgentSummaryCardProps {
   positiveAgentResponse: any;
   negativeAgentLoading: boolean;
   positiveAgentLoading: boolean;
-  timeRange: number;
+  timeRange: number | null;
   totalFeedback: number;
 }
 
@@ -124,7 +124,7 @@ export function AgentSummaryCard({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>
-              Agent Summary
+              Sentiment Summary
             </CardTitle>
             <div style={{ fontSize: 13, color: '#64748b' }}>
               AI-powered pattern analysis
@@ -132,7 +132,7 @@ export function AgentSummaryCard({
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: 12, color: '#64748b' }}>
-              Window: {timeRange}d
+              Window: {timeRange ? `${timeRange}d` : 'All time'}
             </div>
             <div style={{ fontSize: 12, color: '#64748b' }}>
               n={totalFeedback} feedback

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 interface PositiveRateChartProps {
   allFeedback: any[];
-  timeRange: number;
+  timeRange: number | null;
 }
 
 export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartProps) {
@@ -12,10 +12,13 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
     const dateGroups = new Map<string, { positive: number; total: number }>();
     const now = new Date();
 
+    // If timeRange is null, use last 30 days for display purposes
+    const daysToShow = timeRange ?? 30;
+
     // Build continuous date series for ALL days in window
-    for (let i = 0; i < timeRange; i++) {
+    for (let i = 0; i < daysToShow; i++) {
       const date = new Date(now);
-      date.setDate(date.getDate() - (timeRange - 1 - i));
+      date.setDate(date.getDate() - (daysToShow - 1 - i));
       const dateKey = date.toISOString().split('T')[0];
       dateGroups.set(dateKey, { positive: 0, total: 0 });
     }
@@ -75,7 +78,7 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
       <CardContent style={{ padding: 24 }}>
         <div style={{ height: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
+          <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#64748b' }} />
             <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748b' }} label={{ value: '% Positive', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: '#64748b' } }} />
             <Tooltip 
@@ -125,7 +128,7 @@ export function PositiveRateChart({ allFeedback, timeRange }: PositiveRateChartP
         </div>
         
         {/* Legend */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 11 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, fontSize: 11, height: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <div style={{ width: 20, height: 3, background: '#14b8a6' }} />
             <span style={{ color: '#64748b' }}>7-day Rolling Average</span>

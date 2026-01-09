@@ -53,7 +53,7 @@ function SentimentDashboardContent() {
   const [negativeAgentLoading, setNegativeAgentLoading] = useState(false);
   const [positiveAgentLoading, setPositiveAgentLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [timeRange, setTimeRange] = useState<1 | 7 | 14 | 30>(7);
+  const [timeRange, setTimeRange] = useState<1 | 7 | 14 | 30 | null>(7);
   const [positiveFeedback, setPositiveFeedback] = useState<any[]>([]);
   const [negativeFeedback, setNegativeFeedback] = useState<any[]>([]);
   
@@ -65,7 +65,7 @@ function SentimentDashboardContent() {
   
   // Extended KPI state
   const [kpiExtras, setKpiExtras] = useState<{
-    priorMetrics?: { totalFeedback: number; uniqueRaters: number; repeatRaters: number };
+    priorMetrics?: { totalFeedback: number; positiveCount: number; negativeCount: number; uniqueRaters: number; repeatRaters: number };
     mostActiveRater?: { email: string; count: number };
     mostPositiveUser?: { email: string; count: number; rate: number };
     mostNegativeUser?: { email: string; count: number; rate: number };
@@ -77,6 +77,9 @@ function SentimentDashboardContent() {
   const [showApiCalls, setShowApiCalls] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const ITEMS_PER_PAGE = 10;
+  
+  // Agent response cache: Map<"customer_timeRange", response>
+  const agentCacheRef = React.useRef<Map<string, { negative: any; positive: any }>>(new Map());
 
   // Generate trend data from raw results (which have createTime)
   // CRITICAL: Extract from ALL three locations per GLEAN_RESULT_EXTRACTION.md
@@ -95,7 +98,9 @@ function SentimentDashboardContent() {
     
     const now = new Date();
     const startDate = new Date(now);
-    startDate.setDate(startDate.getDate() - timeRange);
+    // If timeRange is null, show last 30 days for visualization
+    const daysToShow = timeRange ?? 30;
+    startDate.setDate(startDate.getDate() - daysToShow);
     
     // Group feedback by date and sentiment from ALL extraction points
     const dateGroups: { [key: string]: { positive: number; negative: number } } = {};
@@ -180,7 +185,7 @@ function SentimentDashboardContent() {
     
     // Generate array of dates for the range with separate positive/negative counts
     const trendData = [];
-    for (let i = timeRange - 1; i >= 0; i--) {
+    for (let i = daysToShow - 1; i >= 0; i--) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
       const dateKey = date.toISOString().split('T')[0];
@@ -221,7 +226,13 @@ function SentimentDashboardContent() {
 
   // Filter feedback by time range
   // offset: how many days back to start the window (0 = current period, days = prior period)
-  const filterFeedbackByTimeRange = (feedback: any[], days: number, offset: number = 0) => {
+  // days: null means return all feedback (no date filter)
+  const filterFeedbackByTimeRange = (feedback: any[], days: number | null, offset: number = 0) => {
+    // If days is null, return all feedback without date filtering
+    if (days === null) {
+      return feedback;
+    }
+    
     const now = new Date();
     const endDate = new Date(now);
     endDate.setDate(endDate.getDate() - offset);
@@ -279,9 +290,10 @@ function SentimentDashboardContent() {
       const topIssueType = Array.from(issueTypeCounts.entries())
         .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Unknown';
       
-      // Calculate prior period for trend delta
-      const priorFiltered = filterFeedbackByTimeRange(allFeedback, timeRange, timeRange);
+      // Calculate prior period for trend delta (only if timeRange is not null)
+      const priorFiltered = timeRange !== null ? filterFeedbackByTimeRange(allFeedback, timeRange, timeRange) : [];
       const priorPositive = priorFiltered.filter((f: any) => f.sentiment === 'positive').length;
+      const priorNegative = priorFiltered.filter((f: any) => f.sentiment === 'negative').length;
       const priorTotal = priorFiltered.length;
       
       // Prior period user metrics
@@ -297,7 +309,7 @@ function SentimentDashboardContent() {
       
       const currentPositiveRate = totalFeedback > 0 ? (positiveCount / totalFeedback) * 100 : 0;
       const priorPositiveRate = priorTotal > 0 ? (priorPositive / priorTotal) * 100 : 0;
-      const positiveRateDelta = currentPositiveRate - priorPositiveRate;
+      const positiveRateDelta = timeRange !== null ? currentPositiveRate - priorPositiveRate : undefined;
       
       // NEW KPI calculations
       // Most Active Rater
@@ -348,12 +360,14 @@ function SentimentDashboardContent() {
         uniqueRaters,
         repeatRaters,
         topIssueType,
-        positiveRateDelta: priorTotal > 0 ? positiveRateDelta : undefined,
+        positiveRateDelta: timeRange !== null && priorTotal > 0 ? positiveRateDelta : undefined,
       });
       
       setKpiExtras({
         priorMetrics: {
           totalFeedback: priorTotal,
+          positiveCount: priorPositive,
+          negativeCount: priorNegative,
           uniqueRaters: priorUniqueRaters,
           repeatRaters: priorRepeatRaters,
         },
@@ -403,7 +417,8 @@ function SentimentDashboardContent() {
   }, [negativeAgentResponse, positiveAgentResponse]);
 
   // Convert time range to timeframe string
-  const getTimeframeString = (days: number): string => {
+  const getTimeframeString = (days: number | null): string => {
+    if (days === null) return 'past_year';
     switch (days) {
       case 1: return 'past_day';
       case 7: return 'past_week';
@@ -413,7 +428,17 @@ function SentimentDashboardContent() {
     }
   };
 
-  const callNegativeAgent = async (customerName: string, timeframeDays: number) => {
+  const callNegativeAgent = async (customerName: string, timeframeDays: number | null) => {
+    // Check cache first
+    const cacheKey = `${customerName}_${timeframeDays}`;
+    const cached = agentCacheRef.current.get(cacheKey);
+    
+    if (cached?.negative) {
+      console.log(`✅ Using CACHED negative agent response for ${cacheKey}`);
+      setNegativeAgentResponse(cached.negative);
+      return;
+    }
+    
     try {
       setNegativeAgentLoading(true);
       const timeframe = getTimeframeString(timeframeDays);
@@ -438,7 +463,12 @@ function SentimentDashboardContent() {
 
       const data = await response.json();
       setNegativeAgentResponse(data);
-      console.log(`✅ Negative agent response received:`, data);
+      
+      // Cache the response
+      const existingCache = agentCacheRef.current.get(cacheKey) || {};
+      agentCacheRef.current.set(cacheKey, { ...existingCache, negative: data });
+      
+      console.log(`✅ Negative agent response received and cached:`, data);
     } catch (err) {
       console.error('Error calling negative agent:', err);
       setNegativeAgentResponse({ error: err instanceof Error ? err.message : 'Failed to call agent' });
@@ -447,7 +477,17 @@ function SentimentDashboardContent() {
     }
   };
 
-  const callPositiveAgent = async (customerName: string, timeframeDays: number) => {
+  const callPositiveAgent = async (customerName: string, timeframeDays: number | null) => {
+    // Check cache first
+    const cacheKey = `${customerName}_${timeframeDays}`;
+    const cached = agentCacheRef.current.get(cacheKey);
+    
+    if (cached?.positive) {
+      console.log(`✅ Using CACHED positive agent response for ${cacheKey}`);
+      setPositiveAgentResponse(cached.positive);
+      return;
+    }
+    
     try {
       setPositiveAgentLoading(true);
       const timeframe = getTimeframeString(timeframeDays);
@@ -472,7 +512,12 @@ function SentimentDashboardContent() {
 
       const data = await response.json();
       setPositiveAgentResponse(data);
-      console.log(`✅ Positive agent response received:`, data);
+      
+      // Cache the response
+      const existingCache = agentCacheRef.current.get(cacheKey) || {};
+      agentCacheRef.current.set(cacheKey, { ...existingCache, positive: data });
+      
+      console.log(`✅ Positive agent response received and cached:`, data);
     } catch (err) {
       console.error('Error calling positive agent:', err);
       setPositiveAgentResponse({ error: err instanceof Error ? err.message : 'Failed to call agent' });
@@ -851,6 +896,7 @@ function SentimentDashboardContent() {
       
       // Call BOTH Glean agents in the background (non-blocking)
       // This won't delay the page load - agent analyses load separately
+      // Agent responses are cached per customer+timeRange combination
       callNegativeAgent(selectedCustomer, timeRange).catch(err => {
         console.error('Negative agent call failed (non-blocking):', err);
       });
@@ -997,6 +1043,103 @@ function SentimentDashboardContent() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Glean Search Buttons */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => {
+                // Map timeRange to Glean timeframe
+                const timeframeMap: { [key: number]: string } = {
+                  1: 'past_day',
+                  7: 'past_week',
+                  14: 'past_2_weeks',
+                  30: 'past_month',
+                };
+                const timeframe = timeRange !== null ? timeframeMap[timeRange] || 'past_week' : null;
+                
+                // Build query - conditionally include updated filter
+                const baseQuery = `app:jira component:"GleanChat Bad Queries" label:mf-issue-other label:mf-issue-incorrect-answer label:mf-issue-partial-answer label:mf-issue-incomplete-or-no-answer label:mf-issue-inaccurate-response label:mf-issue-not-question label:mf-issue-not-sure label:mf-issue-missing-citation label:mf-issue-search-google-in-middle glean-${selectedCustomer}`;
+                const query = timeframe ? `${baseQuery} updated:${timeframe}` : baseQuery;
+                const gleanUrl = `https://app.glean.com/search?q=${encodeURIComponent(query)}&tab=jira`;
+                window.open(gleanUrl, '_blank');
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#ffffff',
+                backgroundColor: '#f59e0b',
+                border: '1px solid #f59e0b',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#d97706';
+                e.currentTarget.style.borderColor = '#d97706';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#f59e0b';
+                e.currentTarget.style.borderColor = '#f59e0b';
+              }}
+              title="Open negative feedback search in Glean"
+            >
+              👎 Search in Glean
+            </button>
+            <button
+              onClick={() => {
+                // Map timeRange to Glean timeframe
+                const timeframeMap: { [key: number]: string } = {
+                  1: 'past_day',
+                  7: 'past_week',
+                  14: 'past_2_weeks',
+                  30: 'past_month',
+                };
+                const timeframe = timeRange !== null ? timeframeMap[timeRange] || 'past_week' : null;
+                
+                // Build query - conditionally include updated filter
+                const baseQuery = `app:jira component:"GleanChat Bad Queries" status:Closed -label:mf-issue-other -label:mf-issue-incorrect-answer -label:mf-issue-partial-answer -label:mf-issue-incomplete-or-no-answer -label:mf-issue-inaccurate-response -label:mf-issue-not-question -label:mf-issue-not-sure -label:mf-issue-missing-citation -label:mf-issue-search-google-in-middle glean-${selectedCustomer}`;
+                const query = timeframe ? `${baseQuery} updated:${timeframe}` : baseQuery;
+                const gleanUrl = `https://app.glean.com/search?q=${encodeURIComponent(query)}&tab=jira`;
+                window.open(gleanUrl, '_blank');
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#ffffff',
+                backgroundColor: '#14b8a6',
+                border: '1px solid #14b8a6',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#0d9488';
+                e.currentTarget.style.borderColor = '#0d9488';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#14b8a6';
+                e.currentTarget.style.borderColor = '#14b8a6';
+              }}
+              title="Open positive feedback search in Glean"
+            >
+              👍 Search in Glean
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div style={{ 
+            width: 1, 
+            height: 24, 
+            backgroundColor: '#e5e7eb' 
+          }} />
+
           {/* Date Range Toggles */}
           <div style={{ display: 'flex', gap: 4 }}>
             {[1, 7, 14, 30].map((days) => (
@@ -1018,6 +1161,22 @@ function SentimentDashboardContent() {
                 {days}d
               </button>
             ))}
+            <button
+              onClick={() => setTimeRange(null)}
+              style={{
+                padding: '6px 14px',
+                fontSize: 13,
+                fontWeight: 500,
+                color: timeRange === null ? '#ffffff' : '#6b7280',
+                backgroundColor: timeRange === null ? '#1f2937' : '#ffffff',
+                border: '1px solid #d1d5db',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              All
+            </button>
           </div>
 
           {/* Last Updated */}
@@ -1027,7 +1186,7 @@ function SentimentDashboardContent() {
               color: '#9ca3af', 
               fontWeight: 400,
               marginLeft: 8,
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
             }}>
               Last updated: {lastUpdated.toLocaleTimeString('en-US', { 
                 hour: 'numeric', 
@@ -1036,6 +1195,42 @@ function SentimentDashboardContent() {
               })}
             </div>
           )}
+
+          {/* Refresh Button */}
+          <button
+            onClick={() => {
+              // Clear agent cache and reload
+              agentCacheRef.current.clear();
+              console.log('🔄 Cache cleared, reloading data...');
+              loadData();
+            }}
+            style={{
+              padding: '6px 12px',
+              fontSize: 12,
+              fontWeight: 500,
+              color: '#64748b',
+              backgroundColor: '#ffffff',
+              border: '1px solid #d1d5db',
+              borderRadius: 6,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f8fafc';
+              e.currentTarget.style.borderColor = '#94a3b8';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#d1d5db';
+            }}
+            title="Clear cache and reload all data"
+          >
+            <RefreshCw size={14} />
+            Refresh
+          </button>
         </div>
       </div>
 
@@ -1069,7 +1264,7 @@ function SentimentDashboardContent() {
             <PositiveRateChart allFeedback={allFeedback} timeRange={timeRange} />
           </div>
 
-          {/* C) Agent Summary - The Insights */}
+          {/* C) Sentiment Summary - The Insights */}
           <AgentSummaryCard
             negativeAgentResponse={negativeAgentResponse}
             positiveAgentResponse={positiveAgentResponse}

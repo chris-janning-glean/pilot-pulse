@@ -1,17 +1,23 @@
 import React from 'react';
 import { Card } from '@/components/ui/Card';
-import { MessageSquare, ThumbsUp, TrendingUp, Users, Repeat, Trophy, Smile, AlertTriangle, Sparkles, Flag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { KpiInfo } from '@/components/ui/KpiInfo';
+import { MessageSquare, ThumbsUp, ThumbsDown, TrendingUp, Users, Repeat, Trophy, Smile, AlertTriangle, Sparkles, Flag, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 interface KPIStripProps {
   metrics: {
     totalFeedback: number;
+    positiveCount: number;
+    negativeCount: number;
     positiveRate: number;
+    negativeRate: number;
     positiveRateDelta?: number;
     uniqueRaters?: number;
     repeatRaters?: number;
   };
   priorMetrics?: {
     totalFeedback: number;
+    positiveCount?: number;
+    negativeCount?: number;
     uniqueRaters: number;
     repeatRaters: number;
   };
@@ -52,6 +58,15 @@ export function KPIStrip({
 
   const repeatRatersDelta = priorMetrics && priorMetrics.repeatRaters > 0
     ? ((metrics.repeatRaters || 0) - priorMetrics.repeatRaters) / priorMetrics.repeatRaters * 100
+    : undefined;
+
+  // Calculate positive and negative deltas
+  const positiveCountDelta = priorMetrics && priorMetrics.positiveCount && priorMetrics.positiveCount > 0
+    ? ((metrics.positiveCount - priorMetrics.positiveCount) / priorMetrics.positiveCount) * 100
+    : undefined;
+
+  const negativeCountDelta = priorMetrics && priorMetrics.negativeCount && priorMetrics.negativeCount > 0
+    ? ((metrics.negativeCount - priorMetrics.negativeCount) / priorMetrics.negativeCount) * 100
     : undefined;
 
   // Delta Badge Component
@@ -96,6 +111,7 @@ export function KPIStrip({
     );
   };
 
+  // KPI definitions with tooltip content
   const kpis = [
     {
       icon: MessageSquare,
@@ -104,29 +120,59 @@ export function KPIStrip({
       value: metrics.totalFeedback.toLocaleString(),
       subtext: 'in selected period',
       delta: totalFeedbackDelta,
-      tooltip: `${metrics.totalFeedback} total items`,
+      infoTooltip: {
+        title: 'Total Feedback',
+        body: [
+          'Total number of feedback ratings (👍 + 👎) in the selected time window.',
+          'Computed from merged positive + negative datasets after date filtering.',
+          'Delta compares to the immediately prior window of the same length.',
+        ],
+        sampleSize: metrics.totalFeedback,
+      },
     },
     {
       icon: ThumbsUp,
-      iconColor: '#14b8a6',
-      label: '% Positive',
-      value: `${Math.round(metrics.positiveRate)}%`,
-      subtext: 'satisfaction rate',
-      delta: metrics.positiveRateDelta,
-      isPercentagePoints: true,
-      tooltip: `${Math.round(metrics.positiveRate)}% positive feedback`,
+      iconColor: '#10b981',
+      label: 'Positive Feedback',
+      value: (
+        <span>
+          {metrics.positiveCount.toLocaleString()}{' '}
+          <span style={{ color: '#10b981' }}>({Math.round(metrics.positiveRate)}%)</span>
+        </span>
+      ),
+      subtext: '👍 ratings received',
+      delta: positiveCountDelta,
+      infoTooltip: {
+        title: 'Positive Feedback',
+        body: [
+          'Total number of positive (👍) ratings in the selected time window.',
+          'Percentage shows positive rate: (positive / total) × 100.',
+          'Delta compares count to the immediately prior window of the same length.',
+        ],
+        sampleSize: metrics.positiveCount,
+      },
     },
     {
-      icon: TrendingUp,
-      iconColor: '#8b5cf6',
-      label: 'Trend vs Prior',
-      value: metrics.positiveRateDelta !== undefined
-        ? `${metrics.positiveRateDelta > 0 ? '+' : ''}${metrics.positiveRateDelta.toFixed(1)}pp`
-        : '—',
-      subtext: 'period over period',
-      tooltip: metrics.positiveRateDelta !== undefined
-        ? `${Math.abs(metrics.positiveRateDelta).toFixed(1)} percentage points ${metrics.positiveRateDelta > 0 ? 'up' : 'down'}`
-        : 'No prior period data',
+      icon: ThumbsDown,
+      iconColor: '#f59e0b',
+      label: 'Negative Feedback',
+      value: (
+        <span>
+          {metrics.negativeCount.toLocaleString()}{' '}
+          <span style={{ color: '#f59e0b' }}>({Math.round(metrics.negativeRate)}%)</span>
+        </span>
+      ),
+      subtext: '👎 ratings received',
+      delta: negativeCountDelta,
+      infoTooltip: {
+        title: 'Negative Feedback',
+        body: [
+          'Total number of negative (👎) ratings in the selected time window.',
+          'Percentage shows negative rate: (negative / total) × 100.',
+          'Delta compares count to the immediately prior window of the same length.',
+        ],
+        sampleSize: metrics.negativeCount,
+      },
     },
     {
       icon: Users,
@@ -135,7 +181,15 @@ export function KPIStrip({
       value: (metrics.uniqueRaters || 0) > 0 ? (metrics.uniqueRaters || 0).toLocaleString() : '—',
       subtext: (metrics.uniqueRaters || 0) > 0 ? 'distinct users' : 'insufficient data',
       delta: uniqueRatersDelta,
-      tooltip: `${metrics.uniqueRaters || 0} unique users provided feedback`,
+      infoTooltip: {
+        title: 'Unique Raters',
+        body: [
+          'Number of distinct users who submitted feedback in this window.',
+          'Computed from distinct normalized emails (trim + lowercase).',
+          'Null/empty emails are ignored; if email data is missing, this may be \'—\'.',
+        ],
+        sampleSize: metrics.uniqueRaters,
+      },
     },
     {
       icon: Repeat,
@@ -144,7 +198,15 @@ export function KPIStrip({
       value: (metrics.repeatRaters || 0) > 0 ? (metrics.repeatRaters || 0).toLocaleString() : '—',
       subtext: (metrics.repeatRaters || 0) > 0 ? 'users with 2+ feedback' : 'insufficient data',
       delta: repeatRatersDelta,
-      tooltip: `${metrics.repeatRaters || 0} users with multiple submissions`,
+      infoTooltip: {
+        title: 'Repeat Raters',
+        body: [
+          'Number of users with 2+ feedback ratings in the selected window.',
+          'Requires valid user emails; null/empty emails are ignored.',
+          'Delta compares to the prior window.',
+        ],
+        sampleSize: metrics.repeatRaters,
+      },
     },
     {
       icon: Trophy,
@@ -163,6 +225,14 @@ export function KPIStrip({
       subtext: mostActiveRater ? `${mostActiveRater.count} ratings` : 'no data',
       onClick: mostActiveRater && onFilterUser ? () => onFilterUser(mostActiveRater.email) : undefined,
       isEmail: true,
+      infoTooltip: {
+        title: 'Most Active Rater',
+        body: [
+          'User with the highest total number of ratings (👍 + 👎) in this window.',
+          'Sorted by total ratings; ties break by most recent rating.',
+          'Clicking filters the table to this user.',
+        ],
+      },
     },
     {
       icon: Smile,
@@ -181,6 +251,14 @@ export function KPIStrip({
       subtext: mostPositiveUser ? `${mostPositiveUser.count} • ${mostPositiveUser.rate}% positive` : 'no data',
       onClick: mostPositiveUser && onFilterUser ? () => onFilterUser(mostPositiveUser.email) : undefined,
       isEmail: true,
+      infoTooltip: {
+        title: 'Most Positive User',
+        body: [
+          'User with the highest positive rate in this window (with minimum sample size).',
+          'Eligibility: users with ≥2 ratings (configurable).',
+          'Shown as: total ratings + positive rate.',
+        ],
+      },
     },
     {
       icon: AlertTriangle,
@@ -199,6 +277,14 @@ export function KPIStrip({
       subtext: mostNegativeUser ? `${mostNegativeUser.count} • ${mostNegativeUser.rate}% negative` : 'no data',
       onClick: mostNegativeUser && onFilterUser ? () => onFilterUser(mostNegativeUser.email) : undefined,
       isEmail: true,
+      infoTooltip: {
+        title: 'Most Negative User',
+        body: [
+          'User with the highest negative rate in this window (with minimum sample size).',
+          'Eligibility: users with ≥2 ratings (configurable).',
+          'Shown as: total ratings + negative rate.',
+        ],
+      },
     },
     {
       icon: Sparkles,
@@ -207,8 +293,15 @@ export function KPIStrip({
       value: topPositiveTerm ? topPositiveTerm.phrase : '—',
       subtext: topPositiveTerm ? `n=${topPositiveTerm.frequency} mentions` : 'no data',
       onClick: topPositiveTerm && onFilterPhrase ? () => onFilterPhrase(topPositiveTerm.phrase, 'positive') : undefined,
-      tooltip: topPositiveTerm ? `"${topPositiveTerm.phrase}" appears ${topPositiveTerm.frequency} times` : 'No tag data',
       smallValue: true,
+      infoTooltip: {
+        title: 'Top Positive Term',
+        body: [
+          'Most frequent phrase from the positive tag cloud in this window.',
+          'Frequency is based on extracted phrases from comments.',
+          'Clicking can filter the table/search for this phrase.',
+        ],
+      },
     },
     {
       icon: Flag,
@@ -217,8 +310,15 @@ export function KPIStrip({
       value: topNegativeTerm ? topNegativeTerm.phrase : '—',
       subtext: topNegativeTerm ? `n=${topNegativeTerm.frequency} mentions` : 'no data',
       onClick: topNegativeTerm && onFilterPhrase ? () => onFilterPhrase(topNegativeTerm.phrase, 'negative') : undefined,
-      tooltip: topNegativeTerm ? `"${topNegativeTerm.phrase}" appears ${topNegativeTerm.frequency} times` : 'No tag data',
       smallValue: true,
+      infoTooltip: {
+        title: 'Top Negative Term',
+        body: [
+          'Most frequent phrase from the negative tag cloud in this window.',
+          'Frequency is based on extracted phrases from comments.',
+          'Clicking can filter the table/search for this phrase.',
+        ],
+      },
     },
   ];
 
@@ -235,7 +335,6 @@ export function KPIStrip({
           <div
             key={idx}
             onClick={kpi.onClick}
-            title={kpi.isEmail ? undefined : kpi.tooltip}
             style={{ cursor: kpi.onClick ? 'pointer' : 'default' }}
             onMouseEnter={(e) => {
               if (kpi.onClick && e.currentTarget.firstElementChild) {
@@ -258,8 +357,20 @@ export function KPIStrip({
                 borderRadius: 12,
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
                 transition: 'all 0.2s',
+                position: 'relative',
               }}
             >
+            {/* Info Icon - Top Right Corner */}
+            {kpi.infoTooltip && (
+              <div style={{ position: 'absolute', top: 12, right: 12 }}>
+                <KpiInfo
+                  title={kpi.infoTooltip.title}
+                  body={kpi.infoTooltip.body}
+                  sampleSize={kpi.infoTooltip.sampleSize}
+                />
+              </div>
+            )}
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {/* Icon Badge */}
               <div style={{

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 interface UniqueRatersChartProps {
   allFeedback: any[];
-  timeRange: number;
+  timeRange: number | null;
 }
 
 export function UniqueRatersChart({ allFeedback, timeRange }: UniqueRatersChartProps) {
@@ -12,10 +12,13 @@ export function UniqueRatersChart({ allFeedback, timeRange }: UniqueRatersChartP
     const dateGroups = new Map<string, Set<string>>();
     const now = new Date();
 
+    // If timeRange is null, use last 30 days for display purposes
+    const daysToShow = timeRange ?? 30;
+
     // Initialize dates
-    for (let i = 0; i < timeRange; i++) {
+    for (let i = 0; i < daysToShow; i++) {
       const date = new Date(now);
-      date.setDate(date.getDate() - (timeRange - 1 - i));
+      date.setDate(date.getDate() - (daysToShow - 1 - i));
       const dateKey = date.toISOString().split('T')[0];
       dateGroups.set(dateKey, new Set());
     }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { KpiInfo } from '@/components/ui/KpiInfo';
 
 interface TopUsersCardProps {
   allFeedback: any[];
@@ -40,7 +41,7 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
       total: stats.total,
       lastDate: stats.lastDate,
     }))
-    .sort((a, b) => b.negativeRate - a.negativeRate)
+    .sort((a, b) => b.negativeCount - a.negativeCount || b.negativeRate - a.negativeRate)
     .slice(0, 10);
 
   // Helper to abbreviate email
@@ -65,8 +66,24 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
           <div>
             {/* Header Block - Fixed Height */}
             <div style={{ minHeight: 44, marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 4 }}>
+              <div style={{ 
+                fontSize: 13, 
+                fontWeight: 600, 
+                color: '#0f172a', 
+                marginBottom: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
                 🏆 Top Raters
+                <KpiInfo
+                  title="Top Raters"
+                  body={[
+                    'Users ranked by total number of feedback submissions (👍 + 👎).',
+                    'Shows their positive feedback rate to identify power users.',
+                    'Clicking a user filters the table below to show their feedback.',
+                  ]}
+                />
               </div>
               <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4 }}>
                 Total • % positive
@@ -123,8 +140,24 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
           <div>
             {/* Header Block - Fixed Height (matches left) */}
             <div style={{ minHeight: 44, marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#92400e', marginBottom: 4 }}>
+              <div style={{ 
+                fontSize: 13, 
+                fontWeight: 600, 
+                color: '#92400e', 
+                marginBottom: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}>
                 ⚠️ At-Risk
+                <KpiInfo
+                  title="At-Risk Users"
+                  body={[
+                    'Users with 3+ feedback sorted by number of negative (👎) submissions.',
+                    'High negative counts may indicate users struggling with the product.',
+                    'Clicking a user filters the table below to show their feedback history.',
+                  ]}
+                />
               </div>
               <div style={{ fontSize: 11, color: '#64748b', lineHeight: 1.4 }}>
                 👎 count • % negative

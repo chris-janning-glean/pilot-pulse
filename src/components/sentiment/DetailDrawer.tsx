@@ -89,7 +89,43 @@ export function DetailDrawer({ feedback, onClose }: DetailDrawerProps) {
           {/* User Email */}
           <div>
             <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4, fontWeight: 500 }}>User</div>
-            <div style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>
+            <div 
+              style={{ 
+                fontSize: 14, 
+                color: '#334155', 
+                fontFamily: 'monospace',
+                wordBreak: 'break-all',
+                cursor: 'pointer',
+                padding: '8px',
+                background: '#f8fafc',
+                borderRadius: 6,
+                border: '1px solid #e2e8f0',
+                transition: 'all 0.15s',
+              }}
+              title={`${feedback.user || 'Unknown'} (click to copy)`}
+              onClick={(e) => {
+                const target = e.currentTarget;
+                if (feedback.user) {
+                  navigator.clipboard.writeText(feedback.user);
+                  const originalBg = target.style.background;
+                  const originalBorder = target.style.borderColor;
+                  target.style.background = '#d1fae5';
+                  target.style.borderColor = '#10b981';
+                  setTimeout(() => {
+                    target.style.background = originalBg;
+                    target.style.borderColor = originalBorder;
+                  }, 500);
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f1f5f9';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.borderColor = '#e2e8f0';
+              }}
+            >
               {feedback.user || 'Unknown'}
             </div>
           </div>
