@@ -869,135 +869,64 @@ function SentimentDashboardContent() {
         </div>
       </div>
 
+      {/* NEW 3-ZONE LAYOUT */}
       {metrics && (
         <>
-          {/* KPI Cards */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(5, 1fr)', 
-            gap: 12, 
-            marginBottom: 32 
-          }}>
-            {/* Total Feedback */}
-            <Card>
-              <CardContent style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ fontSize: 24 }}>📊</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: 400 }}>
-                      Total Feedback
-                    </div>
-                    <div style={{ fontSize: 32, fontWeight: 600, color: '#111827', letterSpacing: '-0.02em' }}>
-                      {metrics.totalFeedback.toLocaleString()}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                      All time
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* ZONE 1: KPI Strip */}
+          <KPIStrip metrics={metrics} />
 
-            {/* Feedback Today */}
-            <Card>
-              <CardContent style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ fontSize: 24 }}>📅</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: 400 }}>
-                      Today
-                    </div>
-                    <div style={{ fontSize: 32, fontWeight: 600, color: '#111827', letterSpacing: '-0.02em' }}>
-                      {(() => {
-                        const today = new Date().toISOString().split('T')[0];
-                        return allFeedback.filter((f: any) => {
-                          if (!f.createTime) return false;
-                          const feedbackDate = new Date(f.createTime).toISOString().split('T')[0];
-                          return feedbackDate === today;
-                        }).length;
-                      })()}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                      Last 24h
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Positive Feedback */}
-            <Card>
-              <CardContent style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ fontSize: 24 }}>✅</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: 400 }}>
-                      Positive
-                    </div>
-                    <div style={{ fontSize: 32, fontWeight: 600, color: '#111827', letterSpacing: '-0.02em' }}>
-                      {metrics.positiveCount.toLocaleString()}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                      {metrics.positiveRate.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Negative Feedback */}
-            <Card>
-              <CardContent style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ fontSize: 24 }}>⚠️</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: 400 }}>
-                      Negative
-                    </div>
-                    <div style={{ fontSize: 32, fontWeight: 600, color: '#111827', letterSpacing: '-0.02em' }}>
-                      {metrics.negativeCount.toLocaleString()}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                      {metrics.negativeRate.toFixed(1)}%
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Sentiment Score */}
-            <Card>
-              <CardContent style={{ padding: 20 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ fontSize: 24 }}>📈</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: 400 }}>
-                      Sentiment Score
-                    </div>
-                    <div style={{ 
-                      fontSize: 32, 
-                      fontWeight: 600, 
-                      color: metrics.positiveRate > 50 ? '#16a34a' : metrics.positiveRate > 25 ? '#ea580c' : '#dc2626',
-                      letterSpacing: '-0.02em'
-                    }}>
-                      {metrics.positiveRate.toFixed(1)}%
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>
-                      Positive rate
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* ZONE 2: Charts Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, marginBottom: 24 }}>
+            <FeedbackVolumeChart allFeedback={allFeedback} timeRange={timeRange} />
+            <PositiveRateChart allFeedback={allFeedback} timeRange={timeRange} />
+            <TopIssuesChart allFeedback={allFeedback} />
           </div>
 
-          {/* Feedback Trend Chart and Issue Type Breakdown */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(5, 1fr)', 
-            gap: 12, 
-            marginBottom: 32 
-          }}>
+          {/* ZONE 3: Two-Column Triage Layout */}
+          <div style={{ display: 'grid', gridTemplateColumns: '70% 30%', gap: 20, alignItems: 'start' }}>
+            {/* Left Column: Table with Filters */}
+            <div>
+              {/* Filter Bar */}
+              <FilterBar
+                searchFilter={searchFilter}
+                setSearchFilter={setSearchFilter}
+                sentimentFilter={sentimentFilter}
+                setSentimentFilter={setSentimentFilter}
+                issueTypeFilter={issueTypeFilter}
+                setIssueTypeFilter={setIssueTypeFilter}
+                issueTypes={Array.from(new Set(allFeedback.map(f => f.issueType || 'Unknown')))}
+                hasActiveFilters={searchFilter !== '' || sentimentFilter !== 'all' || issueTypeFilter !== 'all'}
+                onClearFilters={() => {
+                  setSearchFilter('');
+                  setSentimentFilter('all');
+                  setIssueTypeFilter('all');
+                }}
+              />
+
+              {/* Feedback Table */}
+              <FeedbackTableWithFilters
+                allFeedback={allFeedback}
+                searchFilter={searchFilter}
+                sentimentFilter={sentimentFilter}
+                issueTypeFilter={issueTypeFilter}
+                onRowClick={setSelectedFeedback}
+              />
+            </div>
+
+            {/* Right Column: Sticky Insights Panel */}
+            <InsightsPanel
+              activeTab={insightsTab}
+              onTabChange={setInsightsTab}
+              negativeAgentResponse={negativeAgentResponse}
+              positiveAgentResponse={positiveAgentResponse}
+              negativeAgentLoading={negativeAgentLoading}
+              positiveAgentLoading={positiveAgentLoading}
+              allFeedback={allFeedback}
+            />
+          </div>
+
+          {/* OLD CHARTS TO DELETE */}
+          <div style={{ display: 'none' }}>
             {/* Feedback Trend Chart - spans 3 columns */}
             <Card style={{ gridColumn: 'span 3' }}>
               <CardHeader>
@@ -1794,6 +1723,11 @@ function SentimentDashboardContent() {
               </Card>
             </div>
           </div>
+
+          {/* Detail Drawer */}
+          {selectedFeedback && (
+            <DetailDrawer feedback={selectedFeedback} onClose={() => setSelectedFeedback(null)} />
+          )}
 
           {/* API Calls - Moved to Settings Page */}
           <Card style={{ display: 'none', marginBottom: 32, background: '#fafafa', borderColor: '#e5e7eb' }}>
