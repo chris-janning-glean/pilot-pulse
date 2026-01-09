@@ -79,7 +79,7 @@ function SentimentDashboardContent() {
   const ITEMS_PER_PAGE = 10;
   
   // Agent response cache: Map<"customer_timeRange", response>
-  const agentCacheRef = React.useRef<Map<string, { negative: any; positive: any }>>(new Map());
+  const agentCacheRef = React.useRef<Map<string, { negative?: any; positive?: any }>>(new Map());
 
   // Generate trend data from raw results (which have createTime)
   // CRITICAL: Extract from ALL three locations per GLEAN_RESULT_EXTRACTION.md
