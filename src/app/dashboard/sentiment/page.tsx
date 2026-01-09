@@ -687,6 +687,50 @@ function SentimentDashboardContent() {
     router.push(`/dashboard/sentiment?customer=${customer}`);
   };
 
+  // Check if customer is in URL
+  if (!selectedCustomer) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: 400,
+        flexDirection: 'column',
+        gap: 16
+      }}>
+        <div style={{ 
+          padding: 32,
+          background: '#fffbeb',
+          border: '1px solid #fbbf24',
+          borderRadius: 12,
+          maxWidth: 500,
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#92400e', marginBottom: 12 }}>
+            No Customer Selected
+          </div>
+          <div style={{ fontSize: 14, color: '#78350f', lineHeight: 1.6 }}>
+            Please add a customer parameter to the URL to view the dashboard.
+          </div>
+          <div style={{ 
+            fontSize: 13, 
+            color: '#78350f', 
+            marginTop: 16,
+            padding: 12,
+            background: '#fef3c7',
+            borderRadius: 6,
+            fontFamily: 'monospace'
+          }}>
+            Example: /dashboard/sentiment?customer=whirlpool
+          </div>
+          <div style={{ fontSize: 12, color: '#92400e', marginTop: 12 }}>
+            Available customers: whirlpool, generalmotors, tailoredbrands, insurity
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 300 }}>
@@ -699,7 +743,7 @@ function SentimentDashboardContent() {
   if (error) {
     return (
       <div>
-        {/* Title Row with Customer Dropdown */}
+        {/* Title Row */}
         <div style={{ 
           display: 'flex', 
           justifyContent: 'space-between',
@@ -708,37 +752,11 @@ function SentimentDashboardContent() {
         }}>
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
-              User Sentiment
+              User Sentiment - {selectedCustomer.charAt(0).toUpperCase() + selectedCustomer.slice(1)}
             </h2>
             <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
               Track user satisfaction and feedback in real time
             </p>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>
-              Customer:
-            </span>
-            <select
-              value={selectedCustomer}
-              onChange={(e) => handleCustomerChange(e.target.value)}
-              style={{
-                padding: '6px 12px',
-                fontSize: 13,
-                fontWeight: 500,
-                color: '#111827',
-                backgroundColor: 'white',
-                border: '1px solid #d1d5db',
-                borderRadius: 6,
-                cursor: 'pointer',
-                outline: 'none',
-              }}
-            >
-              <option value="whirlpool">Whirlpool</option>
-              <option value="generalmotors">General Motors</option>
-              <option value="tailoredbrands">Tailored Brands</option>
-              <option value="insurity">Insurity</option>
-            </select>
           </div>
         </div>
 
@@ -779,7 +797,7 @@ function SentimentDashboardContent() {
 
   return (
     <div>
-      {/* Title Row with Customer Dropdown and Date Range Toggles */}
+      {/* Title Row with Date Range Toggles */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between',
@@ -788,7 +806,7 @@ function SentimentDashboardContent() {
       }}>
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 600, color: '#111827', margin: 0 }}>
-            User Sentiment
+            {selectedCustomer.charAt(0).toUpperCase() + selectedCustomer.slice(1).replace(/([A-Z])/g, ' $1')} - User Sentiment
           </h2>
           <p style={{ margin: '4px 0 0 0', fontSize: 14, color: '#6b7280', fontWeight: 400 }}>
             Track user satisfaction and feedback in real time
@@ -796,31 +814,6 @@ function SentimentDashboardContent() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Customer Dropdown */}
-          <span style={{ fontSize: 14, fontWeight: 500, color: '#6b7280' }}>
-            Customer:
-          </span>
-          <select
-            value={selectedCustomer}
-            onChange={(e) => handleCustomerChange(e.target.value)}
-            style={{
-              padding: '6px 12px',
-              fontSize: 13,
-              fontWeight: 500,
-              color: '#111827',
-              backgroundColor: 'white',
-              border: '1px solid #d1d5db',
-              borderRadius: 6,
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            <option value="whirlpool">Whirlpool</option>
-            <option value="generalmotors">General Motors</option>
-            <option value="tailoredbrands">Tailored Brands</option>
-            <option value="insurity">Insurity</option>
-          </select>
-
           {/* Date Range Toggles */}
           <div style={{ display: 'flex', gap: 4 }}>
             {[1, 7, 14, 30].map((days) => (
@@ -1417,7 +1410,15 @@ function SentimentDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   {negativeAgentLoading ? (
-                    <div>Loading...</div>
+                    <div style={{ 
+                      padding: 40, 
+                      textAlign: 'center',
+                      color: '#64748b',
+                      fontSize: 13
+                    }}>
+                      <div style={{ marginBottom: 8 }}>Analyzing negative feedback...</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>This may take a moment</div>
+                    </div>
                   ) : negativeAgentResponse ? (
                     <>
                       {(() => {
@@ -1581,7 +1582,15 @@ function SentimentDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   {positiveAgentLoading ? (
-                    <div>Loading...</div>
+                    <div style={{ 
+                      padding: 40, 
+                      textAlign: 'center',
+                      color: '#64748b',
+                      fontSize: 13
+                    }}>
+                      <div style={{ marginBottom: 8 }}>Analyzing positive feedback...</div>
+                      <div style={{ fontSize: 11, color: '#94a3b8' }}>This may take a moment</div>
+                    </div>
                   ) : positiveAgentResponse ? (
                     <>
                       {(() => {
