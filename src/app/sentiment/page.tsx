@@ -721,7 +721,7 @@ function SentimentDashboardContent() {
             borderRadius: 6,
             fontFamily: 'monospace'
           }}>
-            Example: /dashboard/sentiment?customer=whirlpool
+            Example: /sentiment?customer=whirlpool
           </div>
           <div style={{ fontSize: 12, color: '#92400e', marginTop: 12 }}>
             Available customers: whirlpool, generalmotors, tailoredbrands, insurity

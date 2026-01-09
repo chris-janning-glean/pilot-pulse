@@ -40,7 +40,6 @@ export function CardHeader({ children, style, className }: CardProps) {
         flexDirection: 'column', 
         gap: 4, 
         padding: '18px 20px',
-        borderBottom: '1px solid #f3f4f6',
         ...style 
       }}
     >

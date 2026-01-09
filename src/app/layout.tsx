@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             alignItems: 'center'
           }}>
             <div>
-              <Link href="/dashboard/sentiment" style={{ color: '#1f2937', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Link href="/sentiment" style={{ color: '#1f2937', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <Image 
                   src="/logos/glean.svg" 
                   alt="Glean" 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const tabs = [
-  { name: 'Sentiment', href: '/dashboard/sentiment' },
+  { name: 'Sentiment', href: '/sentiment' },
   { name: 'Settings', href: '/settings' },
 ];
 
@@ -13,9 +13,9 @@ export function Navigation() {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
-    // Handle sentiment dashboard as the default (root also redirects there)
-    if (href === '/dashboard/sentiment') {
-      return pathname === '/' || pathname.startsWith('/dashboard/sentiment');
+    // Handle sentiment as the default (root also redirects there)
+    if (href === '/sentiment') {
+      return pathname === '/' || pathname.startsWith('/sentiment');
     }
     return pathname.startsWith(href);
   };

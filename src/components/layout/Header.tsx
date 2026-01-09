@@ -13,7 +13,7 @@ export function Header() {
         </Link>
         <nav className="ml-auto flex items-center space-x-6">
           <Link
-            href="/dashboard/sentiment"
+            href="/sentiment"
             className="text-sm font-medium text-gray-700 transition-colors hover:text-primary-600"
           >
             Sentiment
