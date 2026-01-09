@@ -279,7 +279,6 @@ function SettingsPageContent() {
   );
 }
 
-
 export default function SettingsPage() {
   return (
     <Suspense fallback={
