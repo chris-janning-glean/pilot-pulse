@@ -948,6 +948,8 @@ function SentimentDashboardContent() {
             positiveAgentResponse={positiveAgentResponse}
             negativeAgentLoading={negativeAgentLoading}
             positiveAgentLoading={positiveAgentLoading}
+            timeRange={timeRange}
+            totalFeedback={metrics.totalFeedback}
           />
 
           {/* D) Who + What Row - Top Users + Tag Cloud */}
