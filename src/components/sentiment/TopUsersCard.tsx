@@ -43,8 +43,14 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
     .sort((a, b) => b.negativeRate - a.negativeRate)
     .slice(0, 10);
 
+  // Helper to abbreviate email
+  const abbreviateEmail = (email: string) => {
+    const parts = email.split('@');
+    return { username: parts[0], domain: parts[1] ? `@${parts[1]}` : '' };
+  };
+
   return (
-    <Card>
+    <Card style={{ minHeight: 420, maxHeight: 520, display: 'flex', flexDirection: 'column' }}>
       <CardHeader>
         <CardTitle style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
           Top Users
@@ -53,86 +59,110 @@ export function TopUsersCard({ allFeedback, onFilterUser }: TopUsersCardProps) {
           Key contributors and at-risk users
         </div>
       </CardHeader>
-      <CardContent style={{ padding: 24 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <CardContent style={{ padding: 24, flex: 1, overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Top Raters */}
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
-              🏆 Top Raters (Engagement)
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 10 }}>
+              🏆 Top Raters
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {topRaters.slice(0, 8).map((user, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => onFilterUser(user.email)}
-                  style={{
-                    padding: '10px 12px',
-                    background: 'white',
-                    borderRadius: 6,
-                    border: '1px solid #e2e8f0',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f8fafc';
-                    e.currentTarget.style.borderColor = '#6366f1';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                  }}
-                >
-                  <div style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {user.email}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {topRaters.slice(0, 8).map((user, idx) => {
+                const { username, domain } = abbreviateEmail(user.email);
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => onFilterUser(user.email)}
+                    title={user.email}
+                    style={{
+                      padding: '8px 12px',
+                      borderBottom: '1px solid #f1f5f9',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s',
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) auto auto',
+                      gap: 8,
+                      alignItems: 'center',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#f8fafc';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 13, color: '#0f172a', fontFamily: 'monospace' }}>
+                        {username}
+                      </span>
+                      <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                        {domain}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748b', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                      {user.total}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#14b8a6', textAlign: 'right', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+                      {user.positiveRate}%
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, color: '#64748b', marginLeft: 12, whiteSpace: 'nowrap' }}>
-                    {user.total} • {user.positiveRate}% 👍
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
           {/* At-Risk Users */}
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a', marginBottom: 12 }}>
-              ⚠️ At-Risk Users (Most Negative)
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', marginBottom: 10 }}>
+              ⚠️ At-Risk
             </div>
             {atRiskUsers.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {atRiskUsers.slice(0, 8).map((user, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => onFilterUser(user.email)}
-                    style={{
-                      padding: '10px 12px',
-                      background: '#fffbeb',
-                      borderRadius: 6,
-                      border: '1px solid #fbbf24',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#fef3c7';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#fffbeb';
-                    }}
-                  >
-                    <div style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {user.email}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {atRiskUsers.slice(0, 8).map((user, idx) => {
+                  const { username, domain } = abbreviateEmail(user.email);
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => onFilterUser(user.email)}
+                      title={user.email}
+                      style={{
+                        padding: '8px 12px',
+                        background: 'rgba(251, 191, 36, 0.08)',
+                        borderBottom: '1px solid rgba(251, 191, 36, 0.2)',
+                        cursor: 'pointer',
+                        transition: 'background 0.15s',
+                        display: 'grid',
+                        gridTemplateColumns: 'minmax(0, 1fr) auto auto',
+                        gap: 8,
+                        alignItems: 'center',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(251, 191, 36, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(251, 191, 36, 0.08)';
+                      }}
+                    >
+                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: 13, color: '#0f172a', fontFamily: 'monospace' }}>
+                          {username}
+                        </span>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>
+                          {domain}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12, color: '#92400e', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                        {user.negativeCount}👎
+                      </div>
+                      <div style={{ fontSize: 12, color: '#92400e', textAlign: 'right', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+                        {user.negativeRate}%
+                      </div>
                     </div>
-                    <div style={{ fontSize: 13, color: '#92400e' }}>
-                      {user.negativeCount} 👎 ({user.negativeRate}% negative) • {user.total} total
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div style={{ fontSize: 14, color: '#94a3b8' }}>No users with 3+ feedback</div>
+              <div style={{ fontSize: 13, color: '#94a3b8' }}>No users with 3+ feedback</div>
             )}
           </div>
         </div>
