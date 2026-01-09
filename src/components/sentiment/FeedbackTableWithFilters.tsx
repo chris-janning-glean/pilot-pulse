@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 interface FeedbackTableProps {
@@ -9,6 +9,8 @@ interface FeedbackTableProps {
   onRowClick: (feedback: any) => void;
 }
 
+const ITEMS_PER_PAGE = 25;
+
 export function FeedbackTableWithFilters({
   allFeedback,
   searchFilter,
@@ -16,6 +18,7 @@ export function FeedbackTableWithFilters({
   issueTypeFilter,
   onRowClick,
 }: FeedbackTableProps) {
+  const [currentPage, setCurrentPage] = useState(1);
   // Apply filters
   const filteredData = allFeedback.filter((item) => {
     // Search filter
@@ -40,6 +43,17 @@ export function FeedbackTableWithFilters({
 
     return true;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedData = filteredData.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchFilter, sentimentFilter, issueTypeFilter]);
 
   return (
     <Card>
@@ -74,7 +88,7 @@ export function FeedbackTableWithFilters({
               </tr>
             </thead>
             <tbody>
-              {filteredData.slice(0, 50).map((item, index) => (
+              {paginatedData.map((item, index) => (
                 <tr
                   key={item.id || index}
                   onClick={() => onRowClick(item)}
@@ -143,18 +157,68 @@ export function FeedbackTableWithFilters({
             </tbody>
           </table>
 
-          {filteredData.length > 50 && (
-            <div style={{ padding: 16, textAlign: 'center', fontSize: 12, color: '#64748b' }}>
-              Showing first 50 of {filteredData.length} results
-            </div>
-          )}
-
           {filteredData.length === 0 && (
-            <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+            <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
               No feedback matches your filters
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {filteredData.length > 0 && (
+          <div style={{ 
+            marginTop: 20, 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            paddingTop: 16,
+            borderTop: '1px solid #e2e8f0'
+          }}>
+            <div style={{ fontSize: 14, color: '#64748b' }}>
+              Showing {startIndex + 1}-{Math.min(endIndex, filteredData.length)} of {filteredData.length}
+            </div>
+            
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: currentPage === 1 ? '#cbd5e1' : '#64748b',
+                  background: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Previous
+              </button>
+              
+              <div style={{ fontSize: 13, color: '#64748b' }}>
+                Page {currentPage} of {totalPages}
+              </div>
+              
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: currentPage === totalPages ? '#cbd5e1' : '#64748b',
+                  background: 'white',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
