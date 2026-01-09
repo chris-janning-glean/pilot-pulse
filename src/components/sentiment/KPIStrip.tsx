@@ -117,6 +117,7 @@ export function KPIStrip({
     iconColor: string;
     label: string;
     value: any;
+    fullValue?: string;
     subtext: string;
     delta?: number;
     isPercentagePoints?: boolean;
@@ -306,7 +307,12 @@ export function KPIStrip({
       icon: Sparkles,
       iconColor: '#14b8a6',
       label: 'Top Positive Term',
-      value: topPositiveTerm ? topPositiveTerm.phrase : '—',
+      value: topPositiveTerm 
+        ? (topPositiveTerm.phrase.length > 30 
+            ? topPositiveTerm.phrase.substring(0, 30) + '...' 
+            : topPositiveTerm.phrase)
+        : '—',
+      fullValue: topPositiveTerm?.phrase,
       subtext: topPositiveTerm ? `n=${topPositiveTerm.frequency} mentions` : 'no data',
       onClick: topPositiveTerm && onFilterPhrase ? () => onFilterPhrase(topPositiveTerm.phrase, 'positive') : undefined,
       smallValue: true,
@@ -323,7 +329,12 @@ export function KPIStrip({
       icon: Flag,
       iconColor: '#f59e0b',
       label: 'Top Negative Term',
-      value: topNegativeTerm ? topNegativeTerm.phrase : '—',
+      value: topNegativeTerm 
+        ? (topNegativeTerm.phrase.length > 30 
+            ? topNegativeTerm.phrase.substring(0, 30) + '...' 
+            : topNegativeTerm.phrase)
+        : '—',
+      fullValue: topNegativeTerm?.phrase,
       subtext: topNegativeTerm ? `n=${topNegativeTerm.frequency} mentions` : 'no data',
       onClick: topNegativeTerm && onFilterPhrase ? () => onFilterPhrase(topNegativeTerm.phrase, 'negative') : undefined,
       smallValue: true,
@@ -351,6 +362,7 @@ export function KPIStrip({
           <div
             key={idx}
             onClick={kpi.onClick}
+            title={kpi.fullValue || undefined}
             style={{ cursor: kpi.onClick ? 'pointer' : 'default' }}
             onMouseEnter={(e) => {
               if (kpi.onClick && e.currentTarget.firstElementChild) {
