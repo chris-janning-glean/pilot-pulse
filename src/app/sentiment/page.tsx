@@ -10,7 +10,7 @@ import { DEFAULT_API_CONFIGS } from '@/lib/config';
 import { RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { buttonStyles } from '@/lib/commonStyles';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts';
 
 function SentimentDashboardContent() {
   const router = useRouter();
@@ -44,6 +44,13 @@ function SentimentDashboardContent() {
   const [timeRange, setTimeRange] = useState<1 | 7 | 14 | 30>(7);
   const [positiveFeedback, setPositiveFeedback] = useState<any[]>([]);
   const [negativeFeedback, setNegativeFeedback] = useState<any[]>([]);
+  
+  // New state for filters, drawer, and tabs
+  const [searchFilter, setSearchFilter] = useState('');
+  const [sentimentFilter, setSentimentFilter] = useState<'all' | 'positive' | 'negative'>('all');
+  const [issueTypeFilter, setIssueTypeFilter] = useState('all');
+  const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null); // For detail drawer
+  const [insightsTab, setInsightsTab] = useState<'summary' | 'users' | 'examples'>('summary');
   const [negativeApiCall, setNegativeApiCall] = useState<any>(null);
   const [positiveApiCall, setPositiveApiCall] = useState<any>(null);
   const [showApiCalls, setShowApiCalls] = useState(false);
@@ -628,6 +635,27 @@ function SentimentDashboardContent() {
       const positiveRate = totalFeedback > 0 ? (combinedStats.positiveCount / totalFeedback) * 100 : 0;
       const negativeRate = totalFeedback > 0 ? (combinedStats.negativeCount / totalFeedback) * 100 : 0;
       
+      // Calculate advanced KPIs
+      const uniqueRaters = new Set(allFeedbackItems.filter(f => f.user).map(f => f.user)).size;
+      
+      // Repeat raters - users with 2+ feedback
+      const userCounts = new Map<string, number>();
+      allFeedbackItems.forEach(f => {
+        if (f.user) {
+          userCounts.set(f.user, (userCounts.get(f.user) || 0) + 1);
+        }
+      });
+      const repeatRaters = Array.from(userCounts.values()).filter(count => count >= 2).length;
+      
+      // Top issue type
+      const issueTypeCounts = new Map<string, number>();
+      allFeedbackItems.forEach(f => {
+        const issue = f.issueType || 'Unknown';
+        issueTypeCounts.set(issue, (issueTypeCounts.get(issue) || 0) + 1);
+      });
+      const topIssueType = Array.from(issueTypeCounts.entries())
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Unknown';
+      
       setMetrics({
         totalFeedback: totalFeedback,
         positiveCount: combinedStats.positiveCount,
@@ -636,6 +664,9 @@ function SentimentDashboardContent() {
         positiveRate: positiveRate,
         negativeRate: negativeRate,
         trendData: [],
+        uniqueRaters,
+        repeatRaters,
+        topIssueType,
       });
       
       // Call BOTH Glean agents in the background (non-blocking)

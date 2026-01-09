@@ -49,6 +49,11 @@ export interface SentimentMetrics {
   positiveRate: number;
   negativeRate: number;
   trendData: SentimentTrendPoint[];
+  // New KPIs
+  uniqueRaters?: number;
+  repeatRaters?: number;
+  topIssueType?: string;
+  positiveRateDelta?: number; // vs prior period
 }
 
 export interface SentimentTrendPoint {
