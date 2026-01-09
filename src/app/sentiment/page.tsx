@@ -2,9 +2,6 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SentimentOverview } from '@/components/sentiment/SentimentOverview';
-import { SentimentChart } from '@/components/sentiment/SentimentChart';
-import { FeedbackTable } from '@/components/sentiment/FeedbackTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import type { FeedbackTicket, SentimentMetrics } from '@/types';
 import { gleanApi } from '@/lib/glean-api';
@@ -13,7 +10,7 @@ import { DEFAULT_API_CONFIGS } from '@/lib/config';
 import { RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { buttonStyles } from '@/lib/commonStyles';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 function SentimentDashboardContent() {
   const router = useRouter();
@@ -699,11 +696,8 @@ function SentimentDashboardContent() {
             Add a customer parameter to the URL to view data.
           </div>
           <code style={{ fontSize: 13, color: '#78350f', padding: 12, background: '#fef3c7', borderRadius: 6, display: 'block', marginBottom: 12 }}>
-            /sentiment?customer=whirlpool
+            /sentiment?customer=generalmotors
           </code>
-          <div style={{ fontSize: 12, color: '#92400e' }}>
-            whirlpool | generalmotors | tailoredbrands | insurity
-          </div>
         </div>
       </div>
     );
