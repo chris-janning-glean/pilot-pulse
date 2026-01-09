@@ -408,7 +408,7 @@ export function KPIStrip({
               </div>
 
               {/* Value + Delta */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', minHeight: 34 }}>
                 <div style={{ 
                   fontSize: kpi.smallValue ? 18 : (typeof kpi.value === 'string' && !kpi.isEmail ? 28 : 24), 
                   fontWeight: 600, 
